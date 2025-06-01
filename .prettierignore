@@ -1,0 +1,22 @@
+# Build output
+**/dist/
+dist-demo/
+**/.vitepress/cache/
+**/.vitepress/dist/
+coverage/
+**/*.tsbuildinfo
+
+# Dependencies & lockfiles
+**/node_modules/
+pnpm-lock.yaml
+
+# Markdown is authored by hand — keep as-is.
+*.md
+CHANGELOG.md
+**/CHANGELOG.md
+.changeset/*.md
+
+# Generated / vendored
+.vercel/
+.claude/
+LICENSE

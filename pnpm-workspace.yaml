@@ -1,0 +1,12 @@
+packages:
+  - packages/*
+  - examples/*
+  - docs
+
+allowBuilds:
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - react-dom@19.2.8
+  - react@19.2.8
+  - svelte@5.56.7

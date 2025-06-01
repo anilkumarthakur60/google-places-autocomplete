@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+dist-demo/
+*.tsbuildinfo
+coverage/
+
+# VitePress
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+
+# svelte-package intermediate build dir
+.svelte-kit/
+
+# Env / secrets — Google API keys live here, never committed.
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Vercel
+.vercel/

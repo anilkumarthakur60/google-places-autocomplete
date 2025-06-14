@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "unicorn"],
+  "env": { "browser": true },
+  "categories": { "correctness": "error" },
+  "ignorePatterns": [
+    "dist",
+    "dist-ssr",
+    "dist-demo",
+    "coverage",
+    "node_modules",
+    "docs/.vitepress/cache",
+    "docs/.vitepress/dist"
+  ]
+}

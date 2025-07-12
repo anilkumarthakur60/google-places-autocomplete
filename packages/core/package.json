@@ -1,0 +1,61 @@
+{
+  "name": "@anil-labs/google-places-autocomplete-core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Framework-agnostic engine for Google Places Autocomplete (New): debounced predictions, session-token billing, keyboard navigation and place-details resolution — zero runtime dependencies.",
+  "license": "MIT",
+  "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anilkumarthakur60/google-places-autocomplete.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/anilkumarthakur60/google-places-autocomplete/tree/main/packages/core#readme",
+  "bugs": "https://github.com/anilkumarthakur60/google-places-autocomplete/issues",
+  "keywords": [
+    "google-places",
+    "places-api",
+    "autocomplete",
+    "address-autocomplete",
+    "headless"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist coverage",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.10",
+    "tsup": "^8.5.1",
+    "typescript": "~6.0.0",
+    "vitest": "^4.1.10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

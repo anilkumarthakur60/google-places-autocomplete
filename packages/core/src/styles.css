@@ -1,0 +1,94 @@
+/**
+ * Baseline visual tokens shared by every framework wrapper's dropdown.
+ * Wrappers apply these classes to plain elements; override the custom
+ * properties on `.gpa-root` to theme (or the `data-theme="dark"` block below
+ * covers dark mode automatically).
+ */
+.gpa-root {
+  --gpa-bg: #ffffff;
+  --gpa-fg: #1a1a1a;
+  --gpa-muted: #6b7280;
+  --gpa-border: #d1d5db;
+  --gpa-accent: #2563eb;
+  --gpa-accent-fg: #ffffff;
+  --gpa-radius: 8px;
+  --gpa-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  position: relative;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--gpa-fg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .gpa-root {
+    --gpa-bg: #1f2023;
+    --gpa-fg: #ececf1;
+    --gpa-muted: #9a9aa8;
+    --gpa-border: #3a3b40;
+    --gpa-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.gpa-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: inherit;
+  background: var(--gpa-bg);
+  border: 1px solid var(--gpa-border);
+  border-radius: var(--gpa-radius);
+}
+
+.gpa-input:focus {
+  outline: 2px solid var(--gpa-accent);
+  outline-offset: -1px;
+}
+
+.gpa-listbox {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--gpa-bg);
+  border: 1px solid var(--gpa-border);
+  border-radius: var(--gpa-radius);
+  box-shadow: var(--gpa-shadow);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.gpa-option {
+  padding: 8px 10px;
+  border-radius: calc(var(--gpa-radius) - 3px);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.gpa-option[data-active='true'] {
+  background: var(--gpa-accent);
+  color: var(--gpa-accent-fg);
+}
+
+.gpa-option[data-active='true'] .gpa-option-secondary {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.gpa-option-main {
+  font-size: 14px;
+}
+
+.gpa-option-secondary {
+  font-size: 13px;
+  color: var(--gpa-muted);
+}

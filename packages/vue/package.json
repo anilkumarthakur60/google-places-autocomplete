@@ -1,0 +1,55 @@
+{
+  "name": "@anil-labs/google-places-autocomplete-vue",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Vue 3 address autocomplete component built on Google's Places API (New).",
+  "license": "MIT",
+  "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anilkumarthakur60/google-places-autocomplete.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/anilkumarthakur60/google-places-autocomplete/tree/main/packages/vue#readme",
+  "bugs": "https://github.com/anilkumarthakur60/google-places-autocomplete/issues",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsup && node scripts/check-dist.mjs",
+    "dev": "tsup --watch",
+    "test": "echo \"covered by @anil-labs/google-places-autocomplete-core\"",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@anil-labs/google-places-autocomplete-core": "workspace:^"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.0.2",
+    "tsup": "^8.5.1",
+    "typescript": "~6.0.0",
+    "vue": "^3.5.32"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,140 @@
+import {
+  createEffect,
+  createSignal,
+  createUniqueId,
+  onCleanup,
+  splitProps,
+  For,
+  Show,
+} from 'solid-js'
+import type { Component } from 'solid-js'
+import { createPlacesAutocomplete } from '@anil-labs/google-places-autocomplete-core'
+import type {
+  PlaceDetails,
+  PlacesAutocompleteConfig,
+  PlacesAutocompleteError,
+  Suggestion,
+} from '@anil-labs/google-places-autocomplete-core'
+
+export interface PlacesAutocompleteProps extends Omit<
+  PlacesAutocompleteConfig,
+  'onSelect' | 'onError'
+> {
+  value?: string
+  placeholder?: string
+  onValueChange?: (value: string) => void
+  onSelect?: (place: PlaceDetails, suggestion: Suggestion) => void
+  onError?: (error: PlacesAutocompleteError) => void
+  class?: string
+}
+
+export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) => {
+  const [local, config] = splitProps(props, [
+    'value',
+    'placeholder',
+    'onValueChange',
+    'onSelect',
+    'onError',
+    'class',
+  ])
+
+  const uid = createUniqueId()
+
+  // config (apiKey/debounceMs/etc.) is captured once here, matching the
+  // other wrappers' documented "construct once" behavior.
+  const controller = createPlacesAutocomplete({
+    ...config,
+    onSelect: (place, suggestion) => local.onSelect?.(place, suggestion),
+    onError: (error) => local.onError?.(error),
+  })
+
+  const [state, setState] = createSignal(controller.getState())
+  const unsubscribe = controller.subscribe(() => setState(controller.getState()))
+
+  onCleanup(() => {
+    unsubscribe()
+    controller.destroy()
+  })
+
+  // Lets a parent reset the field (e.g. on form submit) by writing to
+  // `value`; the guard avoids re-issuing setQuery for a no-op change.
+  createEffect(() => {
+    const value = local.value
+    if (value !== undefined && value !== state().query) controller.setQuery(value)
+  })
+
+  function handleInput(event: InputEvent & { currentTarget: HTMLInputElement }): void {
+    const next = event.currentTarget.value
+    local.onValueChange?.(next)
+    controller.setQuery(next)
+  }
+
+  function handleKeyDown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault()
+        controller.moveActive(1)
+        break
+      case 'ArrowUp':
+        event.preventDefault()
+        controller.moveActive(-1)
+        break
+      case 'Enter':
+        if (state().isOpen) {
+          event.preventDefault()
+          controller.selectActive()
+        }
+        break
+      case 'Escape':
+        controller.close()
+        break
+    }
+  }
+
+  return (
+    <div class={['gpa-root', local.class].filter(Boolean).join(' ')}>
+      <input
+        class="gpa-input"
+        type="text"
+        role="combobox"
+        aria-expanded={state().isOpen}
+        aria-autocomplete="list"
+        aria-controls={`${uid}-listbox`}
+        aria-activedescendant={
+          state().isOpen && state().activeIndex >= 0
+            ? `${uid}-option-${state().activeIndex}`
+            : undefined
+        }
+        autocomplete="off"
+        placeholder={local.placeholder ?? 'Search for an address…'}
+        value={state().query}
+        onInput={handleInput}
+        onKeyDown={handleKeyDown}
+      />
+      <Show when={state().isOpen && state().suggestions.length > 0}>
+        <ul class="gpa-listbox" role="listbox" id={`${uid}-listbox`}>
+          <For each={state().suggestions}>
+            {(suggestion, index) => (
+              <li
+                id={`${uid}-option-${index()}`}
+                class="gpa-option"
+                role="option"
+                aria-selected={index() === state().activeIndex}
+                data-active={index() === state().activeIndex}
+                onMouseDown={(event) => {
+                  event.preventDefault()
+                  controller.selectSuggestion(suggestion)
+                }}
+              >
+                <div class="gpa-option-main">{suggestion.mainText}</div>
+                <Show when={suggestion.secondaryText}>
+                  <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
+                </Show>
+              </li>
+            )}
+          </For>
+        </ul>
+      </Show>
+    </div>
+  )
+}

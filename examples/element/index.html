@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@anil-labs/google-places-autocomplete — Web Component example</title>
+    <style>
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: #f7f7f8;
+      }
+      .demo {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 48px 20px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      .tag {
+        color: #555;
+        font-size: 14px;
+      }
+      .error {
+        color: #b91c1c;
+        font-size: 14px;
+      }
+      pre {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="demo">
+      <h1>@anil-labs/google-places-autocomplete — Web Component</h1>
+      <p class="tag">
+        Type an address below. Selecting a suggestion resolves the full place via the same session.
+        No framework runtime involved — this is the &lt;gpa-autocomplete&gt; custom element
+        directly.
+      </p>
+      <!--
+        Left empty on purpose: <gpa-autocomplete> is created and configured
+        in main.ts before it's inserted here. If it were written statically,
+        customElements.define() would synchronously upgrade (and connect)
+        it the instant the script runs, reading api-key/etc. before main.ts
+        gets a chance to set them.
+      -->
+      <div id="autocomplete-container"></div>
+      <p id="error" class="error" hidden></p>
+      <pre id="output" hidden></pre>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

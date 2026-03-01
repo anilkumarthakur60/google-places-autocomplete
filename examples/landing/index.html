@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@anil-labs/google-places-autocomplete — live demos</title>
+    <meta
+      name="description"
+      content="Live demo of @anil-labs/google-places-autocomplete: a typed, session-token-aware address autocomplete built on Google's Places API (New), with React, Vue, Svelte, Solid and Web Component bindings."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="hero">
+        <h1>@anil-labs/google-places-autocomplete</h1>
+        <p class="tag">
+          A typed address autocomplete on Google's Places API (New) — debounced predictions,
+          automatic session-token billing, keyboard navigation and resolved place details.
+        </p>
+      </div>
+
+      <section class="live-demo" aria-labelledby="live-demo-heading">
+        <h2 id="live-demo-heading">Try it</h2>
+        <p class="live-demo-note">
+          This runs the framework-free <code>&lt;gpa-autocomplete&gt;</code> web component directly
+          — no React, Vue, Svelte or Solid runtime on this page.
+        </p>
+        <div id="autocomplete-container"></div>
+        <p id="error" class="error" hidden></p>
+        <pre id="output" hidden></pre>
+      </section>
+
+      <section aria-labelledby="frameworks-heading">
+        <h2 id="frameworks-heading">Pick a framework</h2>
+        <div class="grid" id="framework-grid">
+          <a class="card" href="/vue/">
+            <div class="card-top"><span class="badge">Vue 3</span></div>
+            <p class="desc">The &lt;PlacesAutocomplete&gt; component with v-model.</p>
+            <span class="cta">Open demo &rarr;</span>
+          </a>
+          <a class="card" href="/react/">
+            <div class="card-top"><span class="badge">React</span></div>
+            <p class="desc">
+              The &lt;PlacesAutocomplete&gt; component and usePlacesAutocomplete hook.
+            </p>
+            <span class="cta">Open demo &rarr;</span>
+          </a>
+          <a class="card" href="/svelte/">
+            <div class="card-top"><span class="badge">Svelte</span></div>
+            <p class="desc">A Svelte 5 runes-based &lt;PlacesAutocomplete&gt; component.</p>
+            <span class="cta">Open demo &rarr;</span>
+          </a>
+          <a class="card" href="/solid/">
+            <div class="card-top"><span class="badge">Solid</span></div>
+            <p class="desc">The &lt;PlacesAutocomplete&gt; component with signals.</p>
+            <span class="cta">Open demo &rarr;</span>
+          </a>
+          <a class="card" href="/element/">
+            <div class="card-top"><span class="badge">Web Component</span></div>
+            <p class="desc">
+              The &lt;gpa-autocomplete&gt; custom element — any framework or plain HTML.
+            </p>
+            <span class="cta">Open demo &rarr;</span>
+          </a>
+        </div>
+      </section>
+
+      <footer>
+        Every demo runs the same zero-dependency
+        <code>@anil-labs/google-places-autocomplete-core</code>
+        engine (<span id="version"></span>).
+        <a href="https://github.com/anilkumarthakur60/google-places-autocomplete">View on GitHub</a>
+      </footer>
+    </main>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

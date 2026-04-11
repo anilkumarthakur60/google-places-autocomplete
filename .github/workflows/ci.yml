@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Build runs FIRST and must stay first: several wrapper packages'
+      # builds invoke scripts/check-dist.mjs, which mounts the ACTUAL
+      # compiled bundle. The unit suite only ever compiles src/ through a
+      # dev-time compiler, so a broken shipped artifact (e.g. a wrong esbuild
+      # JSX factory) is invisible to it — build-then-check-dist is the only
+      # thing that catches that class of bug.
+      - name: Build
+        run: pnpm build
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build examples
+        run: pnpm build:examples
+
+      - name: Build docs
+        run: pnpm docs:build

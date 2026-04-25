@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions & discussion
+    url: https://github.com/anilkumarthakur60/google-places-autocomplete/discussions
+    about: Ask questions and discuss ideas
+  - name: Report a security vulnerability
+    url: https://github.com/anilkumarthakur60/google-places-autocomplete/security/advisories/new
+    about: Please report security vulnerabilities privately, not as a public issue

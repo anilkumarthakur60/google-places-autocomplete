@@ -50,21 +50,35 @@
   outline-offset: -1px;
 }
 
-.gpa-listbox {
+/* The panel that appears below the input — holds either the suggestion
+   list, a loading message, or an empty-results message, so its border/shadow
+   live here rather than on .gpa-listbox specifically. */
+.gpa-panel {
   position: absolute;
   z-index: 20;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  margin: 0;
-  padding: 4px;
-  list-style: none;
   background: var(--gpa-bg);
   border: 1px solid var(--gpa-border);
   border-radius: var(--gpa-radius);
   box-shadow: var(--gpa-shadow);
+  overflow: hidden;
+}
+
+.gpa-listbox {
+  margin: 0;
+  padding: 4px;
+  list-style: none;
   max-height: 320px;
   overflow-y: auto;
+}
+
+.gpa-status,
+.gpa-empty {
+  padding: 12px;
+  font-size: 14px;
+  color: var(--gpa-muted);
 }
 
 .gpa-option {

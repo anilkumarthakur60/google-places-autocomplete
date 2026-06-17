@@ -77,6 +77,42 @@ describe('createPlacesAutocomplete', () => {
     expect(state.suggestions).toHaveLength(1)
   })
 
+  it('opens the panel as soon as a search starts, before results arrive', async () => {
+    let resolveFetch: (value: Response) => void = () => {}
+    const fetcher = vi.fn<Fetcher>().mockImplementation(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve
+        }),
+    )
+    const machine = createPlacesAutocomplete({ apiKey: 'k', fetcher, debounceMs: 0 })
+
+    machine.setQuery('1600 amphi')
+    await vi.advanceTimersByTimeAsync(0)
+
+    const loadingState = machine.getState()
+    expect(loadingState.status).toBe('loading')
+    expect(loadingState.isOpen).toBe(true)
+
+    resolveFetch(jsonResponse(suggestionsBody([{ id: 'p1', main: 'A' }])))
+    await Promise.resolve()
+    await Promise.resolve()
+  })
+
+  it('keeps the panel open with zero suggestions so a "no results" state can render', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(jsonResponse(suggestionsBody([])))
+    const machine = createPlacesAutocomplete({ apiKey: 'k', fetcher, debounceMs: 0 })
+
+    machine.setQuery('a place that does not exist')
+    await vi.advanceTimersByTimeAsync(0)
+
+    const state = machine.getState()
+    expect(state.status).toBe('ready')
+    expect(state.isOpen).toBe(true)
+    expect(state.suggestions).toHaveLength(0)
+    expect(state.activeIndex).toBe(-1)
+  })
+
   it('moveActive clamps within suggestion bounds', async () => {
     const fetcher = vi.fn<Fetcher>().mockResolvedValue(
       jsonResponse(

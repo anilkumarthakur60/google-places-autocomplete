@@ -100,7 +100,12 @@ export function createPlacesAutocomplete(
     const controller = new AbortController()
     abortController = controller
     const currentRequestId = ++requestId
-    setState({ status: 'loading' })
+    // isOpen flips true here (not just once suggestions exist), so a wrapper
+    // can render a loading indicator immediately, then either the results or
+    // a "no results" message once the request settles — the panel appearing
+    // and disappearing based on the query alone, independent of whether it
+    // ends up empty.
+    setState({ status: 'loading', isOpen: true })
 
     try {
       const suggestions = await fetchAutocompleteSuggestions({
@@ -121,7 +126,7 @@ export function createPlacesAutocomplete(
       setState({
         suggestions,
         status: 'ready',
-        isOpen: suggestions.length > 0,
+        isOpen: true,
         activeIndex: suggestions.length > 0 ? 0 : -1,
         error: null,
       })
@@ -142,6 +147,11 @@ export function createPlacesAutocomplete(
   }, debounceMs)
 
   async function resolveSelection(suggestion: Suggestion): Promise<void> {
+    // Selecting a suggestion is terminal from the panel's perspective — close
+    // it immediately rather than lingering open (mid old-suggestions) for
+    // the duration of the details fetch below.
+    setState({ isOpen: false })
+
     if (!resolveDetails) {
       const minimal: PlaceDetails = {
         placeId: suggestion.placeId,
@@ -151,7 +161,7 @@ export function createPlacesAutocomplete(
         addressComponents: [],
       }
       session.reset()
-      setState({ selected: minimal, isOpen: false, suggestions: [], query: suggestion.text })
+      setState({ selected: minimal, suggestions: [], query: suggestion.text })
       onSelect?.(minimal, suggestion)
       return
     }

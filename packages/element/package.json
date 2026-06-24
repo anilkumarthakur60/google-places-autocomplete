@@ -30,7 +30,8 @@
     "clean": "rm -rf dist",
     "build": "tsup && node scripts/check-dist.mjs",
     "dev": "tsup --watch",
-    "test": "echo \"covered by @anil-labs/google-places-autocomplete-core\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
@@ -40,7 +41,8 @@
   "devDependencies": {
     "jsdom": "^29.0.2",
     "tsup": "^8.5.1",
-    "typescript": "~6.0.0"
+    "typescript": "~6.0.0",
+    "vitest": "^4.1.10"
   },
   "publishConfig": {
     "access": "public"

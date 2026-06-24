@@ -1,4 +1,7 @@
-import { createPlacesAutocomplete } from '@anil-labs/google-places-autocomplete-core'
+import {
+  bindOutsideClose,
+  createPlacesAutocomplete,
+} from '@anil-labs/google-places-autocomplete-core'
 import type {
   Fetcher,
   LocationBias,
@@ -20,6 +23,17 @@ const OBSERVED_ATTRIBUTES = [
 
 let uidCounter = 0
 
+// Under SSR/Node, `HTMLElement` doesn't exist at all — merely evaluating
+// `class X extends HTMLElement` throws the moment this module is imported
+// (class-extends resolves its base identifier immediately, not lazily),
+// which crashes frameworks like Next.js/Nuxt/SvelteKit that server-render
+// the whole module graph by default, even for code that only ever runs
+// client-side. Falling back to a plain empty base class under SSR lets the
+// module load safely; the class stays inert (never actually instantiated)
+// until customElements.define() runs, which itself no-ops under SSR below.
+const HTMLElementBase: typeof HTMLElement =
+  typeof HTMLElement !== 'undefined' ? HTMLElement : (class {} as unknown as typeof HTMLElement)
+
 /**
  * A framework-free custom element. Renders into light DOM (not a shadow
  * root) so it picks up the same `.gpa-*` classes — and the same imported
@@ -33,7 +47,7 @@ let uidCounter = 0
  * to change live (e.g. a parent form resetting the field), and cheap to
  * apply without reconstructing the whole controller.
  */
-export class GooglePlacesAutocompleteElement extends HTMLElement {
+export class GooglePlacesAutocompleteElement extends HTMLElementBase {
   static get observedAttributes(): readonly string[] {
     return OBSERVED_ATTRIBUTES
   }
@@ -47,17 +61,21 @@ export class GooglePlacesAutocompleteElement extends HTMLElement {
 
   #controller: PlacesAutocompleteController | null = null
   #unsubscribe: (() => void) | null = null
+  #unbindOutsideClose: (() => void) | null = null
   #input: HTMLInputElement | null = null
-  #listbox: HTMLUListElement | null = null
+  #panel: HTMLDivElement | null = null
   #uid = `gpa-${++uidCounter}`
 
   connectedCallback(): void {
     this.classList.add('gpa-root')
     this.#renderShell()
     this.#createController()
+    this.#unbindOutsideClose = bindOutsideClose(this, () => this.#controller?.close())
   }
 
   disconnectedCallback(): void {
+    this.#unbindOutsideClose?.()
+    this.#unbindOutsideClose = null
     this.#unsubscribe?.()
     this.#controller?.destroy()
     this.#controller = null
@@ -124,21 +142,20 @@ export class GooglePlacesAutocompleteElement extends HTMLElement {
     input.type = 'text'
     input.setAttribute('role', 'combobox')
     input.setAttribute('aria-autocomplete', 'list')
-    input.setAttribute('aria-controls', `${this.#uid}-listbox`)
+    input.setAttribute('aria-controls', `${this.#uid}-panel`)
     input.autocomplete = 'off'
     input.placeholder = this.getAttribute('placeholder') ?? 'Search for an address…'
     input.addEventListener('input', () => this.#controller?.setQuery(input.value))
     input.addEventListener('keydown', (event) => this.#handleKeydown(event))
 
-    const listbox = document.createElement('ul')
-    listbox.className = 'gpa-listbox'
-    listbox.id = `${this.#uid}-listbox`
-    listbox.setAttribute('role', 'listbox')
-    listbox.hidden = true
+    const panel = document.createElement('div')
+    panel.className = 'gpa-panel'
+    panel.id = `${this.#uid}-panel`
+    panel.hidden = true
 
-    this.append(input, listbox)
+    this.append(input, panel)
     this.#input = input
-    this.#listbox = listbox
+    this.#panel = panel
   }
 
   #handleKeydown(event: KeyboardEvent): void {
@@ -168,8 +185,8 @@ export class GooglePlacesAutocompleteElement extends HTMLElement {
   #syncFromState(): void {
     const controller = this.#controller
     const input = this.#input
-    const listbox = this.#listbox
-    if (!controller || !input || !listbox) return
+    const panel = this.#panel
+    if (!controller || !input || !panel) return
     const state = controller.getState()
 
     if (input.value !== state.query) input.value = state.query
@@ -180,13 +197,38 @@ export class GooglePlacesAutocompleteElement extends HTMLElement {
       input.removeAttribute('aria-activedescendant')
     }
 
-    const shouldShow = state.isOpen && state.suggestions.length > 0
-    listbox.hidden = !shouldShow
-    listbox.replaceChildren(
+    panel.hidden = !state.isOpen
+    if (!state.isOpen) {
+      panel.replaceChildren()
+      return
+    }
+
+    if (state.status === 'loading') {
+      panel.replaceChildren(this.#renderStatus('gpa-status', 'Searching…'))
+      return
+    }
+    if (state.suggestions.length === 0) {
+      panel.replaceChildren(this.#renderStatus('gpa-empty', 'No results found'))
+      return
+    }
+
+    const listbox = document.createElement('ul')
+    listbox.className = 'gpa-listbox'
+    listbox.setAttribute('role', 'listbox')
+    listbox.append(
       ...state.suggestions.map((suggestion, index) =>
         this.#renderOption(suggestion, index, state.activeIndex),
       ),
     )
+    panel.replaceChildren(listbox)
+  }
+
+  #renderStatus(className: string, text: string): HTMLDivElement {
+    const div = document.createElement('div')
+    div.className = className
+    div.setAttribute('role', 'status')
+    div.textContent = text
+    return div
   }
 
   #renderOption(suggestion: Suggestion, index: number, activeIndex: number): HTMLLIElement {
@@ -220,6 +262,7 @@ export class GooglePlacesAutocompleteElement extends HTMLElement {
 }
 
 export function defineGooglePlacesAutocompleteElement(tagName = 'gpa-autocomplete'): void {
+  if (typeof customElements === 'undefined') return // no-op under SSR
   if (!customElements.get(tagName)) {
     customElements.define(tagName, GooglePlacesAutocompleteElement)
   }

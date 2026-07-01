@@ -3,12 +3,16 @@ import {
   createSignal,
   createUniqueId,
   onCleanup,
+  onMount,
   splitProps,
   For,
   Show,
 } from 'solid-js'
 import type { Component } from 'solid-js'
-import { createPlacesAutocomplete } from '@anil-labs/google-places-autocomplete-core'
+import {
+  bindOutsideClose,
+  createPlacesAutocomplete,
+} from '@anil-labs/google-places-autocomplete-core'
 import type {
   PlaceDetails,
   PlacesAutocompleteConfig,
@@ -39,6 +43,13 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
   ])
 
   const uid = createUniqueId()
+  /*
+   * Solid's `ref={rootRef}` JSX prop below assigns this during render via a
+   * compiler transform the linter's data-flow analysis can't see — it is
+   * not actually left unassigned.
+   */
+  // eslint-disable-next-line no-unassigned-vars -- see comment above
+  let rootRef: HTMLDivElement | undefined
 
   // config (apiKey/debounceMs/etc.) is captured once here, matching the
   // other wrappers' documented "construct once" behavior.
@@ -50,6 +61,12 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
 
   const [state, setState] = createSignal(controller.getState())
   const unsubscribe = controller.subscribe(() => setState(controller.getState()))
+
+  onMount(() => {
+    if (!rootRef) return
+    const unbind = bindOutsideClose(rootRef, () => controller.close())
+    onCleanup(unbind)
+  })
 
   onCleanup(() => {
     unsubscribe()
@@ -92,14 +109,14 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
   }
 
   return (
-    <div class={['gpa-root', local.class].filter(Boolean).join(' ')}>
+    <div class={['gpa-root', local.class].filter(Boolean).join(' ')} ref={rootRef}>
       <input
         class="gpa-input"
         type="text"
         role="combobox"
         aria-expanded={state().isOpen}
         aria-autocomplete="list"
-        aria-controls={`${uid}-listbox`}
+        aria-controls={`${uid}-panel`}
         aria-activedescendant={
           state().isOpen && state().activeIndex >= 0
             ? `${uid}-option-${state().activeIndex}`
@@ -111,29 +128,49 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
         onInput={handleInput}
         onKeyDown={handleKeyDown}
       />
-      <Show when={state().isOpen && state().suggestions.length > 0}>
-        <ul class="gpa-listbox" role="listbox" id={`${uid}-listbox`}>
-          <For each={state().suggestions}>
-            {(suggestion, index) => (
-              <li
-                id={`${uid}-option-${index()}`}
-                class="gpa-option"
-                role="option"
-                aria-selected={index() === state().activeIndex}
-                data-active={index() === state().activeIndex}
-                onMouseDown={(event) => {
-                  event.preventDefault()
-                  controller.selectSuggestion(suggestion)
-                }}
-              >
-                <div class="gpa-option-main">{suggestion.mainText}</div>
-                <Show when={suggestion.secondaryText}>
-                  <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
-                </Show>
-              </li>
-            )}
-          </For>
-        </ul>
+      <Show when={state().isOpen}>
+        <div class="gpa-panel" id={`${uid}-panel`}>
+          <Show
+            when={state().status !== 'loading'}
+            fallback={
+              <div class="gpa-status" role="status">
+                Searching…
+              </div>
+            }
+          >
+            <Show
+              when={state().suggestions.length > 0}
+              fallback={
+                <div class="gpa-empty" role="status">
+                  No results found
+                </div>
+              }
+            >
+              <ul class="gpa-listbox" role="listbox">
+                <For each={state().suggestions}>
+                  {(suggestion, index) => (
+                    <li
+                      id={`${uid}-option-${index()}`}
+                      class="gpa-option"
+                      role="option"
+                      aria-selected={index() === state().activeIndex}
+                      data-active={index() === state().activeIndex}
+                      onMouseDown={(event) => {
+                        event.preventDefault()
+                        controller.selectSuggestion(suggestion)
+                      }}
+                    >
+                      <div class="gpa-option-main">{suggestion.mainText}</div>
+                      <Show when={suggestion.secondaryText}>
+                        <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
+                      </Show>
+                    </li>
+                  )}
+                </For>
+              </ul>
+            </Show>
+          </Show>
+        </div>
       </Show>
     </div>
   )

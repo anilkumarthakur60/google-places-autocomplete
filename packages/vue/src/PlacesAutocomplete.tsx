@@ -1,6 +1,7 @@
-import { defineComponent, useId, watch } from 'vue'
+import { defineComponent, onMounted, onUnmounted, ref, useId, watch } from 'vue'
 import type { PropType } from 'vue'
 import { usePlacesAutocomplete } from './usePlacesAutocomplete'
+import { bindOutsideClose } from '@anil-labs/google-places-autocomplete-core'
 import type {
   Fetcher,
   LocationBias,
@@ -31,6 +32,7 @@ export const PlacesAutocomplete = defineComponent({
   },
   setup(props, { emit }) {
     const uid = useId()
+    const rootRef = ref<HTMLDivElement | null>(null)
     const { state, controller } = usePlacesAutocomplete({
       apiKey: props.apiKey,
       fetcher: props.fetcher,
@@ -56,6 +58,14 @@ export const PlacesAutocomplete = defineComponent({
         if (next !== state.value.query) controller.setQuery(next)
       },
     )
+
+    let unbindOutsideClose: (() => void) | null = null
+    onMounted(() => {
+      if (rootRef.value) {
+        unbindOutsideClose = bindOutsideClose(rootRef.value, () => controller.close())
+      }
+    })
+    onUnmounted(() => unbindOutsideClose?.())
 
     function handleInput(event: Event): void {
       const value = (event.target as HTMLInputElement).value
@@ -88,14 +98,14 @@ export const PlacesAutocomplete = defineComponent({
     return () => {
       const current = state.value
       return (
-        <div class="gpa-root">
+        <div class="gpa-root" ref={rootRef}>
           <input
             class="gpa-input"
             type="text"
             role="combobox"
             aria-expanded={current.isOpen}
             aria-autocomplete="list"
-            aria-controls={`${uid}-listbox`}
+            aria-controls={`${uid}-panel`}
             aria-activedescendant={
               current.isOpen && current.activeIndex >= 0
                 ? `${uid}-option-${current.activeIndex}`
@@ -107,28 +117,40 @@ export const PlacesAutocomplete = defineComponent({
             onInput={handleInput}
             onKeydown={handleKeydown}
           />
-          {current.isOpen && current.suggestions.length > 0 && (
-            <ul class="gpa-listbox" role="listbox" id={`${uid}-listbox`}>
-              {current.suggestions.map((suggestion, index) => (
-                <li
-                  key={suggestion.placeId}
-                  id={`${uid}-option-${index}`}
-                  class="gpa-option"
-                  role="option"
-                  aria-selected={index === current.activeIndex}
-                  data-active={index === current.activeIndex}
-                  onMousedown={(event: MouseEvent) => {
-                    event.preventDefault()
-                    controller.selectSuggestion(suggestion)
-                  }}
-                >
-                  <div class="gpa-option-main">{suggestion.mainText}</div>
-                  {suggestion.secondaryText && (
-                    <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
-                  )}
-                </li>
-              ))}
-            </ul>
+          {current.isOpen && (
+            <div class="gpa-panel" id={`${uid}-panel`}>
+              {current.status === 'loading' ? (
+                <div class="gpa-status" role="status">
+                  Searching…
+                </div>
+              ) : current.suggestions.length === 0 ? (
+                <div class="gpa-empty" role="status">
+                  No results found
+                </div>
+              ) : (
+                <ul class="gpa-listbox" role="listbox">
+                  {current.suggestions.map((suggestion, index) => (
+                    <li
+                      key={suggestion.placeId}
+                      id={`${uid}-option-${index}`}
+                      class="gpa-option"
+                      role="option"
+                      aria-selected={index === current.activeIndex}
+                      data-active={index === current.activeIndex}
+                      onMousedown={(event: MouseEvent) => {
+                        event.preventDefault()
+                        controller.selectSuggestion(suggestion)
+                      }}
+                    >
+                      <div class="gpa-option-main">{suggestion.mainText}</div>
+                      {suggestion.secondaryText && (
+                        <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
         </div>
       )

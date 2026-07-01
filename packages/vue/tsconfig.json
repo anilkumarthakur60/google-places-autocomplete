@@ -5,5 +5,5 @@
     "jsx": "preserve",
     "types": ["vue/jsx"]
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }

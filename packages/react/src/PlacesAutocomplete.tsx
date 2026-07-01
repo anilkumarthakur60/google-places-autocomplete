@@ -1,7 +1,10 @@
-import { forwardRef, useEffect, useId } from 'react'
+import { forwardRef, useEffect, useId, useRef } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { usePlacesAutocomplete } from './usePlacesAutocomplete'
-import type { PlacesAutocompleteConfig } from '@anil-labs/google-places-autocomplete-core'
+import {
+  bindOutsideClose,
+  type PlacesAutocompleteConfig,
+} from '@anil-labs/google-places-autocomplete-core'
 
 export interface PlacesAutocompleteProps extends Omit<
   PlacesAutocompleteConfig,
@@ -30,6 +33,7 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
     ref,
   ) {
     const uid = useId()
+    const rootRef = useRef<HTMLDivElement>(null)
     const { state, controller } = usePlacesAutocomplete({ ...config, onSelect, onError })
 
     // Lets a parent reset the field (e.g. on form submit) by writing to
@@ -37,6 +41,11 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
     useEffect(() => {
       if (value !== undefined && value !== state.query) controller.setQuery(value)
     }, [value, state.query, controller])
+
+    useEffect(() => {
+      if (!rootRef.current) return
+      return bindOutsideClose(rootRef.current, () => controller.close())
+    }, [controller])
 
     function handleChange(event: ChangeEvent<HTMLInputElement>): void {
       const next = event.target.value
@@ -67,7 +76,7 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
     }
 
     return (
-      <div className={['gpa-root', className].filter(Boolean).join(' ')}>
+      <div className={['gpa-root', className].filter(Boolean).join(' ')} ref={rootRef}>
         <input
           ref={ref}
           className="gpa-input"
@@ -75,7 +84,7 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
           role="combobox"
           aria-expanded={state.isOpen}
           aria-autocomplete="list"
-          aria-controls={`${uid}-listbox`}
+          aria-controls={`${uid}-panel`}
           aria-activedescendant={
             state.isOpen && state.activeIndex >= 0
               ? `${uid}-option-${state.activeIndex}`
@@ -87,28 +96,40 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
           onChange={handleChange}
           onKeyDown={handleKeyDown}
         />
-        {state.isOpen && state.suggestions.length > 0 && (
-          <ul className="gpa-listbox" role="listbox" id={`${uid}-listbox`}>
-            {state.suggestions.map((suggestion, index) => (
-              <li
-                key={suggestion.placeId}
-                id={`${uid}-option-${index}`}
-                className="gpa-option"
-                role="option"
-                aria-selected={index === state.activeIndex}
-                data-active={index === state.activeIndex}
-                onMouseDown={(event) => {
-                  event.preventDefault()
-                  controller.selectSuggestion(suggestion)
-                }}
-              >
-                <div className="gpa-option-main">{suggestion.mainText}</div>
-                {suggestion.secondaryText && (
-                  <div className="gpa-option-secondary">{suggestion.secondaryText}</div>
-                )}
-              </li>
-            ))}
-          </ul>
+        {state.isOpen && (
+          <div className="gpa-panel" id={`${uid}-panel`}>
+            {state.status === 'loading' ? (
+              <div className="gpa-status" role="status">
+                Searching…
+              </div>
+            ) : state.suggestions.length === 0 ? (
+              <div className="gpa-empty" role="status">
+                No results found
+              </div>
+            ) : (
+              <ul className="gpa-listbox" role="listbox">
+                {state.suggestions.map((suggestion, index) => (
+                  <li
+                    key={suggestion.placeId}
+                    id={`${uid}-option-${index}`}
+                    className="gpa-option"
+                    role="option"
+                    aria-selected={index === state.activeIndex}
+                    data-active={index === state.activeIndex}
+                    onMouseDown={(event) => {
+                      event.preventDefault()
+                      controller.selectSuggestion(suggestion)
+                    }}
+                  >
+                    <div className="gpa-option-main">{suggestion.mainText}</div>
+                    {suggestion.secondaryText && (
+                      <div className="gpa-option-secondary">{suggestion.secondaryText}</div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </div>
     )

@@ -10,6 +10,10 @@ import type {
   PlacesAutocompleteController,
   Suggestion,
 } from '@anil-labs/google-places-autocomplete-core'
+// Inlined as a string at build time (see tsup.config.ts) and injected on first
+// connect, so the element is self-styling — no separate CSS import needed,
+// including via a plain <script> tag from a CDN.
+import styles from '@anil-labs/google-places-autocomplete-core/styles.css'
 
 const OBSERVED_ATTRIBUTES = [
   'value',
@@ -20,6 +24,17 @@ const OBSERVED_ATTRIBUTES = [
   'language-code',
   'region-code',
 ] as const
+
+const STYLE_ID = 'gpa-autocomplete-styles'
+
+/** Inject the shared stylesheet once per document (idempotent via the id). */
+function injectStyles(): void {
+  if (typeof document === 'undefined' || document.getElementById(STYLE_ID)) return
+  const style = document.createElement('style')
+  style.id = STYLE_ID
+  style.textContent = styles
+  document.head.append(style)
+}
 
 let uidCounter = 0
 
@@ -67,6 +82,7 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
   #uid = `gpa-${++uidCounter}`
 
   connectedCallback(): void {
+    injectStyles()
     this.classList.add('gpa-root')
     this.#renderShell()
     this.#createController()

@@ -1,4 +1,4 @@
-import '@anil-labs/google-places-autocomplete-core/styles.css'
+// No CSS import needed — the element self-injects the stylesheet on connect.
 import { defineGooglePlacesAutocompleteElement } from '@anil-labs/google-places-autocomplete-element'
 import { DEMO_CONFIG, getDemoApiKey } from '../shared/src/config'
 import type {

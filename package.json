@@ -36,7 +36,8 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm run build && changeset publish",
-    "prepare": "husky"
+    "prepare": "husky",
+    "example:dev": "pnpm --filter \"./examples/*\" run dev"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
@@ -65,5 +66,5 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "pnpm@11.13.0"
+  "packageManager": "pnpm@11.15.1"
 }

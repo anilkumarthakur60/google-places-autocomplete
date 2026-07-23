@@ -55,17 +55,19 @@ Pin a version for production (e.g. `.../@anil-labs/google-places-autocomplete-el
 
 ## Attributes
 
-| Attribute        | Maps to                        |
-| ----------------- | -------------------------------- |
-| `api-key`          | `apiKey`                        |
-| `value`            | live-updatable; see below        |
-| `placeholder`      | live-updatable                  |
-| `debounce-ms`      | `debounceMs` (number)            |
-| `min-length`       | `minLength` (number)             |
-| `language-code`    | `languageCode`                  |
-| `region-code`      | `regionCode`                    |
+Every attribute is **live**: change it after the element is connected and it applies to the next request (via the controller's `setConfig()` under the hood) — the way HTML authors expect attributes to behave.
 
-`api-key`/`debounce-ms`/`min-length`/`language-code`/`region-code` are read once at first connection. `value` and `placeholder` are the two exceptions — they're cheap to apply live without reconstructing the controller, so changing them after the element is connected works as expected (e.g. a parent form resetting the field via `el.value = ''`).
+| Attribute          | Maps to                          |
+| ------------------- | ---------------------------------- |
+| `api-key`            | `apiKey`                          |
+| `value`              | the input's query                  |
+| `placeholder`        | the input's placeholder            |
+| `debounce-ms`        | `debounceMs` (number)              |
+| `min-length`         | `minLength` (number)               |
+| `language-code`      | `languageCode`                    |
+| `region-code`        | `regionCode`                      |
+| `searching-text`     | panel text while loading           |
+| `no-results-text`    | panel text when nothing matched    |
 
 ## JS-only properties
 
@@ -74,9 +76,19 @@ For config that doesn't fit in a string attribute, set these directly on the ele
 ```ts
 el.fetcher = (input, init) => fetch('/api/places-proxy', init)
 el.locationBias = { circle: { center: { latitude: 37.4, longitude: -122.1 }, radius: 5000 } }
+el.locationRestriction = { rectangle: { low: { latitude: 26, longitude: 80 }, high: { latitude: 31, longitude: 89 } } }
+el.origin = { latitude: 27.7, longitude: 85.3 } // suggestions gain distanceMeters
 el.includedRegionCodes = ['us']
+el.includedPrimaryTypes = ['locality'] // e.g. a city picker
 el.placeFields = ['id', 'displayName', 'formattedAddress']
 el.resolveDetails = true // default
+// Replace the default two-line option content (the element keeps the <li>,
+// ARIA wiring and selection handling):
+el.renderOption = (suggestion, active) => {
+  const div = document.createElement('div')
+  div.textContent = suggestion.mainText
+  return div
+}
 ```
 
 ## Events

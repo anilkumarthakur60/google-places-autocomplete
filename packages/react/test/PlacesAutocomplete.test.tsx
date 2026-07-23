@@ -75,4 +75,58 @@ describe('PlacesAutocomplete (React)', () => {
     fireEvent.pointerDown(document.body)
     expect(screen.queryByRole('listbox')).toBeNull()
   })
+
+  it('renders custom option content through renderSuggestion', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'Main St' }])))
+    render(
+      <PlacesAutocomplete
+        apiKey="k"
+        fetcher={fetcher}
+        debounceMs={0}
+        renderSuggestion={(s) => <em>custom: {s.mainText}</em>}
+      />,
+    )
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'main' } })
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(screen.getByText('custom: Main St').tagName).toBe('EM')
+  })
+
+  it('applies a changed apiKey prop to the next request without remounting', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'A' }])))
+    const { rerender } = render(
+      <PlacesAutocomplete apiKey="old-key" fetcher={fetcher} debounceMs={0} />,
+    )
+
+    rerender(<PlacesAutocomplete apiKey="new-key" fetcher={fetcher} debounceMs={0} />)
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'kathmandu' } })
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    const [, init] = fetcher.mock.calls[0]!
+    expect((init?.headers as Record<string, string>)['X-Goog-Api-Key']).toBe('new-key')
+  })
+
+  it('uses labels for the empty state', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(jsonResponse({ suggestions: [] }))
+    render(
+      <PlacesAutocomplete
+        apiKey="k"
+        fetcher={fetcher}
+        debounceMs={0}
+        labels={{ noResults: 'Kehi bhetiyena' }}
+      />,
+    )
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'zzz' } })
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(screen.getByText('Kehi bhetiyena')).toBeTruthy()
+  })
 })

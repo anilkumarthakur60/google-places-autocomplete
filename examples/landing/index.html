@@ -105,19 +105,49 @@
           </div>
         </section>
 
-        <!-- API-key notice: shown by main.ts only when no demo key is set. -->
-        <div class="shell">
-          <div class="key-banner" id="key-banner" hidden role="note">
-            <strong>No API key set —</strong> the inputs below are the real component, but Google
-            returns suggestions only with a key. Copy <code>.env.example</code> to <code>.env</code>
-            at the repo root and add a
-            <a
-              href="https://developers.google.com/maps/documentation/places/web-service/op-overview"
-              >Places API (New)</a
-            >
-            key to see live results. Everything else on this page is real.
+        <!-- Bring-your-own-key: this demo ships without a shared Google key,
+             so visitors paste their own to make every demo on the site live. -->
+        <section class="shell" aria-labelledby="api-key-title">
+          <div class="key-panel" id="key-panel">
+            <div class="key-panel-head">
+              <h2 id="api-key-title">Try it with your own API key</h2>
+              <p>
+                This demo ships without a shared Google key — the inputs are the real component, but
+                Google only returns suggestions with a key. Paste a
+                <a
+                  href="https://developers.google.com/maps/documentation/places/web-service/op-overview"
+                  >Places API (New)</a
+                >
+                key and every demo on this page — and every framework playground on this site — goes
+                live.
+              </p>
+            </div>
+            <form class="key-form" id="api-key-form">
+              <label class="key-label" for="api-key-input">Your Google Places API key</label>
+              <div class="key-row">
+                <input
+                  id="api-key-input"
+                  class="key-input"
+                  type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="AIza…"
+                />
+                <button type="submit" class="btn btn-primary btn-small" id="api-key-save">
+                  Use this key
+                </button>
+                <button type="button" class="btn btn-ghost btn-small" id="api-key-clear">
+                  Clear
+                </button>
+              </div>
+              <p class="key-status" id="api-key-status" role="status"></p>
+              <p class="key-note">
+                The key is stored only in this browser (<code>localStorage</code>) and sent only to
+                Google. Use a key restricted by HTTP referrer, and remove it here when you're done.
+              </p>
+            </form>
           </div>
-        </div>
+        </section>
 
         <!-- ---------------------------------------------------------------- -->
         <section class="section" id="configure">

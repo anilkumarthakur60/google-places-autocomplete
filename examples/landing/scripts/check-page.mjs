@@ -46,6 +46,12 @@ Object.defineProperty(globalThis, 'navigator', {
   value: dom.window.navigator,
   configurable: true,
 })
+// The BYO-key feature persists the visitor's key here; Node itself may not
+// provide a global localStorage, so register jsdom's.
+Object.defineProperty(globalThis, 'localStorage', {
+  value: dom.window.localStorage,
+  configurable: true,
+})
 
 const scriptMatch = html.match(/<script[^>]*type="module"[^>]*src="([^"]+)"/)
 if (!scriptMatch) {
@@ -78,11 +84,61 @@ check(
   `expected 5+ autocomplete elements, found ${$$('gpa-autocomplete').length}.`,
 )
 
-// ---- version + key notice ----
+// ---- version ----
 check(/^v\d/.test($('#version-badge')?.textContent ?? ''), '#version-badge: version not injected.')
-// The banner element must exist; its visibility depends on whether a key was
-// baked into this build, so we don't assert hidden/shown here.
-check($('#key-banner') != null, '#key-banner: the API-key notice is missing.')
+
+// ---- bring-your-own API key ----
+// The whole point of the panel: a visitor pastes THEIR key and every demo on
+// the page is recreated with it. Drive the real flow: type → submit → assert
+// the attribute landed on every element, the key persisted, and the remounted
+// elements still upgraded. Then clear and assert the reverse.
+const keyInput = $('#api-key-input')
+const keyForm = $('#api-key-form')
+check(keyInput != null, '#api-key-input: the key input is missing.')
+check(keyForm != null, '#api-key-form: the key form is missing.')
+check($('#api-key-save') != null, '#api-key-save: the save button is missing.')
+check($('#api-key-clear') != null, '#api-key-clear: the clear button is missing.')
+check(
+  ($('#api-key-status')?.textContent ?? '').trim().length > 0,
+  '#api-key-status: no initial key-source status is shown.',
+)
+
+if (keyInput && keyForm) {
+  keyInput.value = 'test-key-123'
+  keyForm.dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }))
+  await tick()
+
+  const elements = $$('gpa-autocomplete')
+  check(
+    elements.length >= 5 && elements.every((n) => n.getAttribute('api-key') === 'test-key-123'),
+    'BYO key: saving did not apply the key to every demo element.',
+  )
+  check(
+    dom.window.localStorage.getItem('gpa-demo-api-key') === 'test-key-123',
+    'BYO key: the key was not persisted to localStorage.',
+  )
+  for (const id of ['hero-demo', 'demo-uk', 'demo-fr', 'demo-instant', 'accent-demo']) {
+    check(
+      $(`#${id} input.gpa-input`) != null,
+      `#${id}: element did not re-mount after the key was applied.`,
+    )
+  }
+  check(
+    ($('#api-key-status')?.textContent ?? '').includes('-123'),
+    '#api-key-status: status does not reflect the saved key.',
+  )
+
+  click($('#api-key-clear'))
+  await tick()
+  check(
+    dom.window.localStorage.getItem('gpa-demo-api-key') === null,
+    'BYO key: clearing did not remove the stored key.',
+  )
+  check(
+    $$('gpa-autocomplete').every((n) => (n.getAttribute('api-key') ?? '') !== 'test-key-123'),
+    'BYO key: clearing did not remove the key from the demo elements.',
+  )
+}
 
 // ---- theme toggle ----
 click($('#theme-switch button[data-theme="light"]'))

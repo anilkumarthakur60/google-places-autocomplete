@@ -352,7 +352,10 @@ a {
   border: 1px solid var(--pg-border);
   border-radius: var(--pg-radius);
   box-shadow: var(--pg-shadow);
-  overflow: hidden;
+  /* NOT overflow:hidden — the autocomplete dropdown is position:absolute and
+     must be allowed to spill past the card, otherwise the card clips its
+     scroll region and the results list looks un-scrollable. */
+  overflow: visible;
 }
 .panel-head {
   display: flex;

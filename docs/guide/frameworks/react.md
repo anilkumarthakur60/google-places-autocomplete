@@ -32,6 +32,33 @@ All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are 
 
 `onSelect`/`onError` are always safe to pass a fresh inline function every render — they're read from a ref internally, so they never go stale. Other config (`apiKey`, `debounceMs`, etc.) is read once when the component mounts; remount via a `key` prop to apply a change.
 
+## Custom suggestion rendering
+
+`renderSuggestion` replaces the default two-line option content; the component keeps the `<li>`, its ARIA wiring and selection handling:
+
+```tsx
+<PlacesAutocomplete
+  apiKey="YOUR_API_KEY"
+  renderSuggestion={(s, { active }) => (
+    <>
+      <strong>{s.mainText}</strong>
+      {s.distanceMeters != null && <small> · {(s.distanceMeters / 1000).toFixed(1)} km</small>}
+    </>
+  )}
+/>
+```
+
+`s.mainTextMatches` carries the matched ranges if you want to bold the typed part.
+
+## Labels (i18n)
+
+```tsx
+<PlacesAutocomplete
+  apiKey="YOUR_API_KEY"
+  labels={{ searching: 'Khojdai…', noResults: 'Kehi bhetiyena' }}
+/>
+```
+
 ## Headless usage
 
 `usePlacesAutocomplete` is the hook the component is built on (`useSyncExternalStore` under the hood), if you want to render your own markup:

@@ -44,6 +44,31 @@ All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are 
 
 `apiKey`/`debounceMs`/etc. are read once when the component is created — to change them, remount the component (e.g. wrap it in a `<template :key="...">` block) rather than expecting a live update.
 
+## Custom suggestion rendering
+
+The `suggestion` scoped slot replaces the default two-line option content; the component keeps the `<li>`, its ARIA wiring and selection handling:
+
+```vue
+<PlacesAutocomplete v-model="query" api-key="YOUR_API_KEY">
+  <template #suggestion="{ suggestion, active }">
+    <strong>{{ suggestion.mainText }}</strong>
+    <small v-if="suggestion.distanceMeters"> · {{ (suggestion.distanceMeters / 1000).toFixed(1) }} km</small>
+  </template>
+</PlacesAutocomplete>
+```
+
+`suggestion.mainTextMatches` carries the matched ranges if you want to bold the typed part.
+
+## Labels (i18n)
+
+```vue
+<PlacesAutocomplete
+  v-model="query"
+  api-key="YOUR_API_KEY"
+  :labels="{ searching: 'Khojdai…', noResults: 'Kehi bhetiyena', placeholder: 'Thegana khojnuhos…' }"
+/>
+```
+
 ## Headless usage
 
 `usePlacesAutocomplete` is the composable the component itself is built on, if you want to render your own markup:

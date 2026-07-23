@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { h, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { PlacesAutocomplete } from '../src/PlacesAutocomplete'
 import type { Fetcher } from '@anil-labs/google-places-autocomplete-core'
@@ -78,6 +79,61 @@ describe('PlacesAutocomplete (Vue)', () => {
     await wrapper.vm.$nextTick()
     expect(wrapper.find('.gpa-panel').exists()).toBe(false)
 
+    wrapper.unmount()
+  })
+
+  it('applies a changed apiKey prop to the next request without remounting', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'A' }])))
+    const wrapper = mount(PlacesAutocomplete, {
+      props: { apiKey: 'old-key', fetcher, debounceMs: 0 },
+    })
+
+    await wrapper.setProps({ apiKey: 'new-key' })
+
+    await wrapper.find('input').setValue('kathmandu')
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    const [, init] = fetcher.mock.calls[0]!
+    expect((init?.headers as Record<string, string>)['X-Goog-Api-Key']).toBe('new-key')
+    wrapper.unmount()
+  })
+
+  it('renders custom option content through the suggestion slot', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'Main St' }])))
+    const wrapper = mount(PlacesAutocomplete, {
+      props: { apiKey: 'k', fetcher, debounceMs: 0 },
+      slots: {
+        suggestion: ({ suggestion }: { suggestion: { mainText: string } }) =>
+          h('em', `custom: ${suggestion.mainText}`),
+      },
+    })
+
+    await wrapper.find('input').setValue('main')
+    await vi.advanceTimersByTimeAsync(0)
+    await nextTick()
+
+    const custom = wrapper.find('.gpa-option em')
+    expect(custom.exists()).toBe(true)
+    expect(custom.text()).toBe('custom: Main St')
+    wrapper.unmount()
+  })
+
+  it('uses labels for the empty state', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(jsonResponse({ suggestions: [] }))
+    const wrapper = mount(PlacesAutocomplete, {
+      props: { apiKey: 'k', fetcher, debounceMs: 0, labels: { noResults: 'Kehi bhetiyena' } },
+    })
+
+    await wrapper.find('input').setValue('zzz')
+    await vi.advanceTimersByTimeAsync(0)
+    await nextTick()
+
+    expect(wrapper.find('.gpa-empty').text()).toBe('Kehi bhetiyena')
     wrapper.unmount()
   })
 })

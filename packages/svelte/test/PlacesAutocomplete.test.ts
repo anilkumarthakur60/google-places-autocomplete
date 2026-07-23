@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushSync, mount, unmount } from 'svelte'
+import { createRawSnippet, flushSync, mount, unmount } from 'svelte'
+import { createBox } from './state.svelte'
 import PlacesAutocomplete from '../src/PlacesAutocomplete.svelte'
 import type { Fetcher } from '@anil-labs/google-places-autocomplete-core'
 
@@ -99,5 +100,72 @@ describe('PlacesAutocomplete (Svelte)', () => {
     document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
     flushSync()
     expect(container.querySelector('.gpa-panel')).toBeNull()
+  })
+
+  it('applies a changed apiKey prop to the next request without remounting', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'A' }])))
+    const apiKey = createBox('old-key')
+    instance = mount(PlacesAutocomplete, {
+      target: container,
+      props: {
+        get apiKey() {
+          return apiKey.value
+        },
+        fetcher,
+        debounceMs: 0,
+      },
+    })
+
+    apiKey.value = 'new-key'
+    flushSync()
+
+    setInputValue('kathmandu')
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    const [, init] = fetcher.mock.calls[0]!
+    expect((init?.headers as Record<string, string>)['X-Goog-Api-Key']).toBe('new-key')
+  })
+
+  it('renders custom option content through the suggestion snippet', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'Main St' }])))
+    instance = mount(PlacesAutocomplete, {
+      target: container,
+      props: {
+        apiKey: 'k',
+        fetcher,
+        debounceMs: 0,
+        suggestion: createRawSnippet<[{ suggestion: { mainText: string }; active: boolean }]>(
+          (args) => ({
+            render: () => `<em>custom: ${args().suggestion.mainText}</em>`,
+          }),
+        ),
+      },
+    })
+
+    setInputValue('main')
+    await vi.advanceTimersByTimeAsync(0)
+    flushSync()
+
+    const custom = container.querySelector('.gpa-option em')
+    expect(custom?.textContent).toBe('custom: Main St')
+  })
+
+  it('uses labels for the empty state', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(jsonResponse({ suggestions: [] }))
+    instance = mount(PlacesAutocomplete, {
+      target: container,
+      props: { apiKey: 'k', fetcher, debounceMs: 0, labels: { noResults: 'Kehi bhetiyena' } },
+    })
+
+    setInputValue('zzz')
+    await vi.advanceTimersByTimeAsync(0)
+    flushSync()
+
+    expect(container.querySelector('.gpa-empty')?.textContent).toBe('Kehi bhetiyena')
   })
 })

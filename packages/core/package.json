@@ -1,6 +1,6 @@
 {
   "name": "@anil-labs/google-places-autocomplete-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Framework-agnostic engine for Google Places Autocomplete (New): debounced predictions, session-token billing, keyboard navigation and place-details resolution — zero runtime dependencies.",
   "license": "MIT",

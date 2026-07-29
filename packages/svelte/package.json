@@ -1,6 +1,6 @@
 {
   "name": "@anil-labs/google-places-autocomplete-svelte",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Svelte 5 address autocomplete component built on Google's Places API (New).",
   "license": "MIT",

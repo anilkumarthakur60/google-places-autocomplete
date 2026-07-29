@@ -8,15 +8,17 @@ import {
   For,
   Show,
 } from 'solid-js'
-import type { Component } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import {
   bindOutsideClose,
   createPlacesAutocomplete,
+  DEFAULT_LABELS,
 } from '@anil-labs/google-places-autocomplete-core'
 import type {
   PlaceDetails,
   PlacesAutocompleteConfig,
   PlacesAutocompleteError,
+  PlacesAutocompleteLabels,
   Suggestion,
 } from '@anil-labs/google-places-autocomplete-core'
 
@@ -30,6 +32,13 @@ export interface PlacesAutocompleteProps extends Omit<
   onSelect?: (place: PlaceDetails, suggestion: Suggestion) => void
   onError?: (error: PlacesAutocompleteError) => void
   class?: string
+  /** Override the built-in strings (searching / no-results) for i18n. */
+  labels?: Partial<PlacesAutocompleteLabels>
+  /**
+   * Replace the default two-line option rendering. The component keeps
+   * ownership of the <li>, its ARIA wiring and selection handling.
+   */
+  renderSuggestion?: (suggestion: Suggestion, active: () => boolean) => JSX.Element
 }
 
 export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) => {
@@ -40,6 +49,8 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
     'onSelect',
     'onError',
     'class',
+    'labels',
+    'renderSuggestion',
   ])
 
   const uid = createUniqueId()
@@ -51,12 +62,18 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
   // eslint-disable-next-line no-unassigned-vars -- see comment above
   let rootRef: HTMLDivElement | undefined
 
-  // config (apiKey/debounceMs/etc.) is captured once here, matching the
-  // other wrappers' documented "construct once" behavior.
   const controller = createPlacesAutocomplete({
     ...config,
     onSelect: (place, suggestion) => local.onSelect?.(place, suggestion),
     onError: (error) => local.onError?.(error),
+  })
+
+  // Live config: reading {...config} inside the effect tracks every config
+  // prop, so any change flows into the machine via setConfig() — no remount
+  // needed. The initial run applies the values the controller was
+  // constructed from, a harmless no-op.
+  createEffect(() => {
+    controller.setConfig({ ...config })
   })
 
   const [state, setState] = createSignal(controller.getState())
@@ -123,7 +140,7 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
             : undefined
         }
         autocomplete="off"
-        placeholder={local.placeholder ?? 'Search for an address…'}
+        placeholder={local.placeholder ?? local.labels?.placeholder ?? DEFAULT_LABELS.placeholder}
         value={state().query}
         onInput={handleInput}
         onKeyDown={handleKeyDown}
@@ -134,7 +151,7 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
             when={state().status !== 'loading'}
             fallback={
               <div class="gpa-status" role="status">
-                Searching…
+                {local.labels?.searching ?? DEFAULT_LABELS.searching}
               </div>
             }
           >
@@ -142,7 +159,7 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
               when={state().suggestions.length > 0}
               fallback={
                 <div class="gpa-empty" role="status">
-                  No results found
+                  {local.labels?.noResults ?? DEFAULT_LABELS.noResults}
                 </div>
               }
             >
@@ -160,9 +177,18 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
                         controller.selectSuggestion(suggestion)
                       }}
                     >
-                      <div class="gpa-option-main">{suggestion.mainText}</div>
-                      <Show when={suggestion.secondaryText}>
-                        <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
+                      <Show
+                        when={local.renderSuggestion}
+                        fallback={
+                          <>
+                            <div class="gpa-option-main">{suggestion.mainText}</div>
+                            <Show when={suggestion.secondaryText}>
+                              <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
+                            </Show>
+                          </>
+                        }
+                      >
+                        {local.renderSuggestion!(suggestion, () => index() === state().activeIndex)}
                       </Show>
                     </li>
                   )}

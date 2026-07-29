@@ -30,6 +30,20 @@ controller.setQuery('1600 amphi')
 
 See the [full API reference](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core) and the [getting started guide](https://anilkumarthakur60.github.io/google-places-autocomplete/guide/getting-started) (Google Cloud setup, key restriction).
 
+## CDN / no bundler
+
+A standalone build is published for plain `<script>`-tag use, exposing the engine as `window.GooglePlacesAutocompleteCore`:
+
+```html
+<script src="https://unpkg.com/@anil-labs/google-places-autocomplete-core"></script>
+<link rel="stylesheet" href="https://unpkg.com/@anil-labs/google-places-autocomplete-core/styles.css" />
+<script>
+  const controller = GooglePlacesAutocompleteCore.createPlacesAutocomplete({ apiKey: 'YOUR_API_KEY' })
+</script>
+```
+
+For a ready-made UI without wiring the engine yourself, prefer [`@anil-labs/google-places-autocomplete-element`](https://www.npmjs.com/package/@anil-labs/google-places-autocomplete-element), whose CDN build bundles this engine in and auto-registers a `<gpa-autocomplete>` tag.
+
 ## Why this over the legacy Autocomplete widget?
 
 - **No Maps JS SDK** — plain `fetch`, works anywhere `fetch`/`AbortController`/`crypto.randomUUID()` exist.

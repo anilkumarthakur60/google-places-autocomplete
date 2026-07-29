@@ -1,6 +1,6 @@
 {
   "name": "@anil-labs/google-places-autocomplete-element",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Framework-free custom element for address autocomplete, built on Google's Places API (New).",
   "license": "MIT",
@@ -16,6 +16,8 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,7 +30,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "tsup && node scripts/check-dist.mjs",
+    "build": "tsup && node scripts/check-dist.mjs && node scripts/check-cdn.mjs",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,15 +1,22 @@
 import {
   bindOutsideClose,
   createPlacesAutocomplete,
+  DEFAULT_LABELS,
 } from '@anil-labs/google-places-autocomplete-core'
 import type {
   Fetcher,
+  LatLng,
   LocationBias,
+  LocationRestriction,
   PlaceDetails,
   PlacesAutocompleteConfig,
   PlacesAutocompleteController,
   Suggestion,
 } from '@anil-labs/google-places-autocomplete-core'
+// Inlined as a string at build time (see tsup.config.ts) and injected on first
+// connect, so the element is self-styling — no separate CSS import needed,
+// including via a plain <script> tag from a CDN.
+import styles from '@anil-labs/google-places-autocomplete-core/styles.css'
 
 const OBSERVED_ATTRIBUTES = [
   'value',
@@ -19,7 +26,20 @@ const OBSERVED_ATTRIBUTES = [
   'min-length',
   'language-code',
   'region-code',
+  'searching-text',
+  'no-results-text',
 ] as const
+
+const STYLE_ID = 'gpa-autocomplete-styles'
+
+/** Inject the shared stylesheet once per document (idempotent via the id). */
+function injectStyles(): void {
+  if (typeof document === 'undefined' || document.getElementById(STYLE_ID)) return
+  const style = document.createElement('style')
+  style.id = STYLE_ID
+  style.textContent = styles
+  document.head.append(style)
+}
 
 let uidCounter = 0
 
@@ -40,12 +60,12 @@ const HTMLElementBase: typeof HTMLElement =
  * `@anil-labs/google-places-autocomplete-core/styles.css` — as every other
  * wrapper, rather than needing its own duplicated/inlined stylesheet.
  *
- * `apiKey`/`debounceMs`/etc. are read once, at first connection, matching
- * every other wrapper's "construct once" behavior — change them by
- * recreating the element, not by mutating attributes after the fact.
- * `value` and `placeholder` are the two exceptions: they're small, expected
- * to change live (e.g. a parent form resetting the field), and cheap to
- * apply without reconstructing the whole controller.
+ * Every observed attribute is LIVE: mutate `api-key`, `debounce-ms`,
+ * `region-code`, … after connection and the change applies to the next
+ * request via the controller's `setConfig()` — the element behaves the way
+ * HTML authors expect attributes to behave. Object-valued config
+ * (`fetcher`, `locationBias`, `renderOption`, …) rides on JS properties,
+ * read when the element connects — set those before appending it.
  */
 export class GooglePlacesAutocompleteElement extends HTMLElementBase {
   static get observedAttributes(): readonly string[] {
@@ -55,9 +75,18 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
   /** JS-only config for values that don't fit in an HTML attribute. */
   fetcher?: Fetcher
   locationBias?: LocationBias
+  locationRestriction?: LocationRestriction
+  origin?: LatLng
   includedRegionCodes?: string[]
+  includedPrimaryTypes?: string[]
   placeFields?: readonly string[]
   resolveDetails?: boolean
+  /**
+   * Replace the default two-line option rendering. Return an element (or
+   * plain text) for the option's content; the element keeps ownership of the
+   * <li>, its ARIA wiring and selection handling.
+   */
+  renderOption?: (suggestion: Suggestion, active: boolean) => HTMLElement | string
 
   #controller: PlacesAutocompleteController | null = null
   #unsubscribe: (() => void) | null = null
@@ -67,6 +96,7 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
   #uid = `gpa-${++uidCounter}`
 
   connectedCallback(): void {
+    injectStyles()
     this.classList.add('gpa-root')
     this.#renderShell()
     this.#createController()
@@ -83,10 +113,35 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
 
   attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
     if (oldValue === newValue || !this.#controller) return
-    if (name === 'value' && newValue !== null && newValue !== this.#controller.getState().query) {
-      this.#controller.setQuery(newValue)
-    } else if (name === 'placeholder' && this.#input) {
-      this.#input.placeholder = newValue ?? ''
+    switch (name) {
+      case 'value':
+        if (newValue !== null && newValue !== this.#controller.getState().query) {
+          this.#controller.setQuery(newValue)
+        }
+        break
+      case 'placeholder':
+        if (this.#input) this.#input.placeholder = newValue ?? DEFAULT_LABELS.placeholder
+        break
+      case 'api-key':
+        this.#controller.setConfig({ apiKey: newValue ?? undefined })
+        break
+      case 'debounce-ms':
+        this.#controller.setConfig({ debounceMs: this.#numberAttribute('debounce-ms') })
+        break
+      case 'min-length':
+        this.#controller.setConfig({ minLength: this.#numberAttribute('min-length') })
+        break
+      case 'language-code':
+        this.#controller.setConfig({ languageCode: newValue ?? undefined })
+        break
+      case 'region-code':
+        this.#controller.setConfig({ regionCode: newValue ?? undefined })
+        break
+      case 'searching-text':
+      case 'no-results-text':
+        // Pure presentation — re-render the panel with the new label.
+        this.#syncFromState()
+        break
     }
   }
 
@@ -115,7 +170,10 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
       languageCode: this.getAttribute('language-code') ?? undefined,
       regionCode: this.getAttribute('region-code') ?? undefined,
       includedRegionCodes: this.includedRegionCodes,
+      includedPrimaryTypes: this.includedPrimaryTypes,
       locationBias: this.locationBias,
+      locationRestriction: this.locationRestriction,
+      origin: this.origin,
       resolveDetails: this.resolveDetails,
       placeFields: this.placeFields,
       onSelect: (place: PlaceDetails, suggestion: Suggestion) => {
@@ -144,7 +202,7 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
     input.setAttribute('aria-autocomplete', 'list')
     input.setAttribute('aria-controls', `${this.#uid}-panel`)
     input.autocomplete = 'off'
-    input.placeholder = this.getAttribute('placeholder') ?? 'Search for an address…'
+    input.placeholder = this.getAttribute('placeholder') ?? DEFAULT_LABELS.placeholder
     input.addEventListener('input', () => this.#controller?.setQuery(input.value))
     input.addEventListener('keydown', (event) => this.#handleKeydown(event))
 
@@ -204,11 +262,21 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
     }
 
     if (state.status === 'loading') {
-      panel.replaceChildren(this.#renderStatus('gpa-status', 'Searching…'))
+      panel.replaceChildren(
+        this.#renderStatus(
+          'gpa-status',
+          this.getAttribute('searching-text') ?? DEFAULT_LABELS.searching,
+        ),
+      )
       return
     }
     if (state.suggestions.length === 0) {
-      panel.replaceChildren(this.#renderStatus('gpa-empty', 'No results found'))
+      panel.replaceChildren(
+        this.#renderStatus(
+          'gpa-empty',
+          this.getAttribute('no-results-text') ?? DEFAULT_LABELS.noResults,
+        ),
+      )
       return
     }
 
@@ -240,16 +308,22 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
     li.setAttribute('aria-selected', String(isActive))
     li.dataset.active = String(isActive)
 
-    const main = document.createElement('div')
-    main.className = 'gpa-option-main'
-    main.textContent = suggestion.mainText
-    li.append(main)
+    const custom = this.renderOption?.(suggestion, isActive)
+    if (custom !== undefined) {
+      if (typeof custom === 'string') li.textContent = custom
+      else li.append(custom)
+    } else {
+      const main = document.createElement('div')
+      main.className = 'gpa-option-main'
+      main.textContent = suggestion.mainText
+      li.append(main)
 
-    if (suggestion.secondaryText) {
-      const secondary = document.createElement('div')
-      secondary.className = 'gpa-option-secondary'
-      secondary.textContent = suggestion.secondaryText
-      li.append(secondary)
+      if (suggestion.secondaryText) {
+        const secondary = document.createElement('div')
+        secondary.className = 'gpa-option-secondary'
+        secondary.textContent = suggestion.secondaryText
+        li.append(secondary)
+      }
     }
 
     li.addEventListener('mousedown', (event) => {

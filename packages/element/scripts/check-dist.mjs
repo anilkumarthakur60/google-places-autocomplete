@@ -32,4 +32,14 @@ if (input.getAttribute('role') !== 'combobox') {
   process.exit(1)
 }
 
-console.log('✓ check-dist (element): built bundle registers, mounts, and renders the input')
+// The library build must inline + self-inject the stylesheet (no separate CSS
+// import), so a <style id="gpa-autocomplete-styles"> should now be in <head>.
+const injected = document.getElementById('gpa-autocomplete-styles')
+if (!injected || !injected.textContent.includes('.gpa-input')) {
+  console.error('✗ check-dist (element): expected the bundle to self-inject the core stylesheet')
+  process.exit(1)
+}
+
+console.log(
+  '✓ check-dist (element): built bundle registers, mounts, renders, and self-injects styles',
+)

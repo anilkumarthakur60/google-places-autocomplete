@@ -1,9 +1,12 @@
 import { forwardRef, useEffect, useId, useRef } from 'react'
-import type { ChangeEvent, KeyboardEvent } from 'react'
+import type { ChangeEvent, KeyboardEvent, ReactNode } from 'react'
 import { usePlacesAutocomplete } from './usePlacesAutocomplete'
 import {
   bindOutsideClose,
+  DEFAULT_LABELS,
   type PlacesAutocompleteConfig,
+  type PlacesAutocompleteLabels,
+  type Suggestion,
 } from '@anil-labs/google-places-autocomplete-core'
 
 export interface PlacesAutocompleteProps extends Omit<
@@ -17,6 +20,14 @@ export interface PlacesAutocompleteProps extends Omit<
   onError?: PlacesAutocompleteConfig['onError']
   placeholder?: string
   className?: string
+  /** Override the built-in strings (searching / no-results) for i18n. */
+  labels?: Partial<PlacesAutocompleteLabels>
+  /**
+   * Replace the default two-line option rendering. The component keeps
+   * ownership of the <li>, its ARIA wiring and selection handling — return
+   * just the option's content.
+   */
+  renderSuggestion?: (suggestion: Suggestion, ctx: { active: boolean }) => ReactNode
 }
 
 export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocompleteProps>(
@@ -26,8 +37,10 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
       onValueChange,
       onSelect,
       onError,
-      placeholder = 'Search for an address…',
+      placeholder,
       className,
+      labels,
+      renderSuggestion,
       ...config
     },
     ref,
@@ -91,7 +104,7 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
               : undefined
           }
           autoComplete="off"
-          placeholder={placeholder}
+          placeholder={placeholder ?? labels?.placeholder ?? DEFAULT_LABELS.placeholder}
           value={state.query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
@@ -100,11 +113,11 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
           <div className="gpa-panel" id={`${uid}-panel`}>
             {state.status === 'loading' ? (
               <div className="gpa-status" role="status">
-                Searching…
+                {labels?.searching ?? DEFAULT_LABELS.searching}
               </div>
             ) : state.suggestions.length === 0 ? (
               <div className="gpa-empty" role="status">
-                No results found
+                {labels?.noResults ?? DEFAULT_LABELS.noResults}
               </div>
             ) : (
               <ul className="gpa-listbox" role="listbox">
@@ -121,9 +134,15 @@ export const PlacesAutocomplete = forwardRef<HTMLInputElement, PlacesAutocomplet
                       controller.selectSuggestion(suggestion)
                     }}
                   >
-                    <div className="gpa-option-main">{suggestion.mainText}</div>
-                    {suggestion.secondaryText && (
-                      <div className="gpa-option-secondary">{suggestion.secondaryText}</div>
+                    {renderSuggestion ? (
+                      renderSuggestion(suggestion, { active: index === state.activeIndex })
+                    ) : (
+                      <>
+                        <div className="gpa-option-main">{suggestion.mainText}</div>
+                        {suggestion.secondaryText && (
+                          <div className="gpa-option-secondary">{suggestion.secondaryText}</div>
+                        )}
+                      </>
                     )}
                   </li>
                 ))}

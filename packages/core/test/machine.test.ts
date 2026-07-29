@@ -214,4 +214,87 @@ describe('createPlacesAutocomplete', () => {
 
     expect(machine.getState().status).toBe('idle')
   })
+
+  it('setConfig applies a new apiKey and region to the next request', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'A' }])))
+    const machine = createPlacesAutocomplete({ apiKey: 'old-key', fetcher, debounceMs: 0 })
+
+    machine.setConfig({ apiKey: 'new-key', regionCode: 'np' })
+    machine.setQuery('kathmandu')
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    const [, init] = fetcher.mock.calls[0]!
+    expect((init?.headers as Record<string, string>)['X-Goog-Api-Key']).toBe('new-key')
+    expect(JSON.parse(init?.body as string)).toMatchObject({ regionCode: 'np' })
+  })
+
+  it('setConfig drops the results of an in-flight request made under the old config', async () => {
+    let resolveOld: (r: Response) => void = () => {}
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockImplementationOnce(() => new Promise<Response>((r) => (resolveOld = r)))
+    const machine = createPlacesAutocomplete({ apiKey: 'old-key', fetcher, debounceMs: 0 })
+
+    machine.setQuery('query under old key')
+    await vi.advanceTimersByTimeAsync(0)
+    expect(machine.getState().status).toBe('loading')
+
+    machine.setConfig({ apiKey: 'new-key' })
+
+    // The old-config response lands late; it must not populate state.
+    resolveOld(jsonResponse(suggestionsBody([{ id: 'stale', main: 'Stale' }])))
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(machine.getState().suggestions).toEqual([])
+  })
+
+  it('clear resets query, suggestions and selection', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'A' }])))
+    const machine = createPlacesAutocomplete({ apiKey: 'k', fetcher, debounceMs: 0 })
+
+    machine.setQuery('a')
+    await vi.advanceTimersByTimeAsync(0)
+    expect(machine.getState().suggestions).toHaveLength(1)
+
+    machine.clear()
+
+    expect(machine.getState()).toMatchObject({
+      query: '',
+      suggestions: [],
+      activeIndex: -1,
+      status: 'idle',
+      isOpen: false,
+      selected: null,
+    })
+  })
+
+  it('passes languageCode/regionCode through to the details request', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValueOnce(jsonResponse(suggestionsBody([{ id: 'p1', main: 'Paris' }])))
+      .mockResolvedValueOnce(jsonResponse(placeDetailsBody('p1', 'Paris, France')))
+    const machine = createPlacesAutocomplete({
+      apiKey: 'k',
+      fetcher,
+      debounceMs: 0,
+      languageCode: 'fr',
+      regionCode: 'fr',
+    })
+
+    machine.setQuery('par')
+    await vi.advanceTimersByTimeAsync(0)
+    machine.selectActive()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(fetcher).toHaveBeenCalledTimes(2)
+    const detailsUrl = new URL(String(fetcher.mock.calls[1]![0]))
+    expect(detailsUrl.searchParams.get('languageCode')).toBe('fr')
+    expect(detailsUrl.searchParams.get('regionCode')).toBe('fr')
+  })
 })

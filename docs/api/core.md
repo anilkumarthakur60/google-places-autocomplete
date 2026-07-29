@@ -8,7 +8,7 @@ Framework-agnostic engine. Every wrapper package is a thin binding on top of thi
 function createPlacesAutocomplete(config: PlacesAutocompleteConfig): PlacesAutocompleteController
 ```
 
-Creates one autocomplete session controller. Config is read once, at creation — see each framework guide for how "change it" maps to "recreate the controller" in that framework.
+Creates one autocomplete session controller. Config can be changed later on the live controller via [`setConfig()`](#placesautocompletecontroller) — every wrapper uses that to make its props/attributes live.
 
 ## `PlacesAutocompleteConfig`
 
@@ -21,7 +21,10 @@ Creates one autocomplete session controller. Config is read once, at creation �
 | `languageCode`             | `string?`                                          |                                    |
 | `regionCode`               | `string?`                                          |                                    |
 | `includedRegionCodes`      | `string[]?`                                        |                                    |
-| `locationBias`             | `LocationBias?`                                    |                                    |
+| `includedPrimaryTypes`     | `string[]?`                                        | restrict to up to 5 place types (e.g. `['locality']` for a city picker) |
+| `locationBias`             | `LocationBias?`                                    | soft ranking preference            |
+| `locationRestriction`      | `LocationRestriction?`                             | hard filter (same shapes as `LocationBias`) |
+| `origin`                   | `LatLng?`                                          | when set, each suggestion carries `distanceMeters` from this point |
 | `resolveDetails`           | `boolean?`                                         | `true`                             |
 | `placeFields`              | `readonly string[]?`                               | `DEFAULT_PLACE_FIELDS`             |
 | `onSelect`                 | `(place: PlaceDetails, suggestion: Suggestion) => void` |                          |
@@ -39,6 +42,8 @@ Creates one autocomplete session controller. Config is read once, at creation �
 | `selectActive()`                        | Selects whichever suggestion is currently highlighted.                |
 | `selectSuggestion(suggestion)`          | Selects a specific suggestion directly.                               |
 | `close()`                               | Closes the suggestion list without changing the query.                |
+| `setConfig(patch)`                      | Merges new config into the live controller (key, region, debounce, …). Aborts any in-flight request; the next keystroke searches with the new settings. |
+| `clear()`                               | Resets to the initial state: empty query, no suggestions, no selection, fresh session token. |
 | `destroy()`                             | Aborts any in-flight request, cancels the pending debounce, and clears listeners. Call this on unmount. |
 
 ## `PlacesAutocompleteState`
@@ -64,8 +69,19 @@ interface Suggestion {
   mainText: string // structured primary text
   secondaryText: string // structured secondary text (may be empty)
   types: string[]
+  textMatches: SuggestionMatch[] // matched ranges within `text`
+  mainTextMatches: SuggestionMatch[] // matched ranges within `mainText`
+  distanceMeters?: number // present when `origin` was configured
+  raw: unknown // the untouched placePrediction from Google
+}
+
+interface SuggestionMatch {
+  startOffset: number
+  endOffset: number
 }
 ```
+
+Use the match ranges to bold the typed part of each suggestion the way Google's own widget does — e.g. wrap `mainText.slice(startOffset, endOffset)` in `<strong>` inside a custom suggestion renderer.
 
 ## `PlaceDetails`
 
@@ -76,6 +92,7 @@ interface PlaceDetails {
   formattedAddress: string
   location: { lat: number; lng: number } | null
   addressComponents: AddressComponent[]
+  raw: unknown // the untouched Place Details response from Google
 }
 
 interface AddressComponent {
@@ -84,6 +101,8 @@ interface AddressComponent {
   types: string[]
 }
 ```
+
+Every field you request via `placeFields` is available on `raw`, including ones the typed shape doesn't map (`types`, `googleMapsUri`, `viewport`, …).
 
 ## `LocationBias`
 
@@ -94,6 +113,18 @@ type LocationBias =
   | { circle: { center: { latitude: number; longitude: number }; radius: number } }
   | { rectangle: { low: { latitude: number; longitude: number }; high: { latitude: number; longitude: number } } }
 ```
+
+## `PlacesAutocompleteLabels`
+
+```ts
+interface PlacesAutocompleteLabels {
+  searching: string // panel text while a request is in flight
+  noResults: string // panel text when nothing matched
+  placeholder: string // default input placeholder
+}
+```
+
+Every wrapper accepts a `labels` prop (the element takes `searching-text` / `no-results-text` attributes) merged over the exported `DEFAULT_LABELS` — override for i18n or white-labeling.
 
 ## `Fetcher`
 

@@ -57,6 +57,9 @@ describe('fetchAutocompleteSuggestions', () => {
         mainText: '1600 Amphitheatre Pkwy',
         secondaryText: 'Mountain View, CA',
         types: ['street_address'],
+        textMatches: [],
+        mainTextMatches: [],
+        raw: expect.objectContaining({ placeId: 'place-1' }),
       },
     ])
   })
@@ -72,6 +75,83 @@ describe('fetchAutocompleteSuggestions', () => {
         fetcher,
       }),
     ).rejects.toMatchObject({ status: 403 })
+  })
+
+  it('passes type filters, restriction and origin through, and maps distance + matches', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(
+      jsonResponse({
+        suggestions: [
+          {
+            placePrediction: {
+              placeId: 'p1',
+              // Google omits zero-valued startOffset; it must normalize to 0.
+              text: { text: 'Paris, France', matches: [{ endOffset: 5 }] },
+              structuredFormat: {
+                mainText: { text: 'Paris', matches: [{ startOffset: 0, endOffset: 5 }] },
+                secondaryText: { text: 'France' },
+              },
+              types: ['locality'],
+              distanceMeters: 4200,
+            },
+          },
+        ],
+      }),
+    )
+
+    const suggestions = await fetchAutocompleteSuggestions({
+      input: 'par',
+      sessionToken: 's',
+      apiKey: 'k',
+      fetcher,
+      includedPrimaryTypes: ['locality'],
+      locationRestriction: {
+        rectangle: { low: { latitude: 40, longitude: -5 }, high: { latitude: 52, longitude: 9 } },
+      },
+      origin: { latitude: 48.8, longitude: 2.3 },
+    })
+
+    const [, init] = fetcher.mock.calls[0]!
+    const body = JSON.parse(init?.body as string)
+    expect(body.includedPrimaryTypes).toEqual(['locality'])
+    expect(body.locationRestriction).toEqual({
+      rectangle: { low: { latitude: 40, longitude: -5 }, high: { latitude: 52, longitude: 9 } },
+    })
+    expect(body.origin).toEqual({ latitude: 48.8, longitude: 2.3 })
+    expect((init?.headers as Record<string, string>)['X-Goog-FieldMask']).toContain(
+      'suggestions.placePrediction.distanceMeters',
+    )
+
+    expect(suggestions[0]).toMatchObject({
+      distanceMeters: 4200,
+      textMatches: [{ startOffset: 0, endOffset: 5 }],
+      mainTextMatches: [{ startOffset: 0, endOffset: 5 }],
+    })
+  })
+
+  it('falls back mainTextMatches to text matches when structuredFormat is absent', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(
+      jsonResponse({
+        suggestions: [
+          {
+            placePrediction: {
+              placeId: 'p1',
+              text: { text: 'Berlin', matches: [{ endOffset: 3 }] },
+            },
+          },
+        ],
+      }),
+    )
+
+    const [suggestion] = await fetchAutocompleteSuggestions({
+      input: 'ber',
+      sessionToken: 's',
+      apiKey: 'k',
+      fetcher,
+    })
+
+    // mainText fell back to `text`, so its matches must fall back too.
+    expect(suggestion!.mainText).toBe('Berlin')
+    expect(suggestion!.mainTextMatches).toEqual([{ startOffset: 0, endOffset: 3 }])
   })
 })
 
@@ -113,7 +193,27 @@ describe('fetchPlaceDetails', () => {
       addressComponents: [
         { longText: 'Mountain View', shortText: 'Mountain View', types: ['locality'] },
       ],
+      raw: expect.objectContaining({ id: 'place-1' }),
     })
+  })
+
+  it('localizes the details request when languageCode/regionCode are set', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(jsonResponse({ id: 'p1' }))
+
+    await fetchPlaceDetails({
+      placeId: 'p1',
+      sessionToken: 's',
+      apiKey: 'k',
+      fetcher,
+      fields: ['id'],
+      languageCode: 'fr',
+      regionCode: 'fr',
+    })
+
+    const [url] = fetcher.mock.calls[0]!
+    const parsed = new URL(String(url))
+    expect(parsed.searchParams.get('languageCode')).toBe('fr')
+    expect(parsed.searchParams.get('regionCode')).toBe('fr')
   })
 
   it('rejects with PlacesAutocompleteError on failure', async () => {

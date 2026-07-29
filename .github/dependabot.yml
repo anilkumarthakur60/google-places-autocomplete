@@ -7,6 +7,7 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: 'development'
+        update-types: ['minor', 'patch']
     open-pull-requests-limit: 10
     ignore:
       - dependency-name: 'typescript'

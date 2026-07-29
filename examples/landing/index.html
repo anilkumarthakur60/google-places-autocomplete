@@ -3,76 +3,378 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@anil-labs/google-places-autocomplete — live demos</title>
+    <title>
+      @anil-labs/google-places-autocomplete — typed address autocomplete for every framework
+    </title>
     <meta
       name="description"
-      content="Live demo of @anil-labs/google-places-autocomplete: a typed, session-token-aware address autocomplete built on Google's Places API (New), with React, Vue, Svelte, Solid and Web Component bindings."
+      content="A typed, session-token-aware address autocomplete built on Google's Places API (New): debounced predictions, keyboard navigation and resolved place details, with React, Vue, Svelte, Solid and Web Component bindings."
     />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="@anil-labs/google-places-autocomplete — one autocomplete engine, every framework"
+    />
+    <meta
+      property="og:description"
+      content="Debounced address predictions with automatic session-token billing, keyboard nav and resolved place details, built on Google's Places API (New)."
+    />
+    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main>
-      <div class="hero">
-        <h1>@anil-labs/google-places-autocomplete</h1>
-        <p class="tag">
-          A typed address autocomplete on Google's Places API (New) — debounced predictions,
-          automatic session-token billing, keyboard navigation and resolved place details.
-        </p>
-      </div>
+    <div class="page" id="page" data-theme="dark">
+      <a class="skip-link" href="#try">Skip to the demo</a>
 
-      <section class="live-demo" aria-labelledby="live-demo-heading">
-        <h2 id="live-demo-heading">Try it</h2>
-        <p class="live-demo-note">
-          This runs the framework-free <code>&lt;gpa-autocomplete&gt;</code> web component directly
-          — no React, Vue, Svelte or Solid runtime on this page.
-        </p>
-        <div id="autocomplete-container"></div>
-        <p id="error" class="error" hidden></p>
-        <pre id="output" hidden></pre>
-      </section>
-
-      <section aria-labelledby="frameworks-heading">
-        <h2 id="frameworks-heading">Pick a framework</h2>
-        <div class="grid" id="framework-grid">
-          <a class="card" href="/vue/">
-            <div class="card-top"><span class="badge">Vue 3</span></div>
-            <p class="desc">The &lt;PlacesAutocomplete&gt; component with v-model.</p>
-            <span class="cta">Open demo &rarr;</span>
-          </a>
-          <a class="card" href="/react/">
-            <div class="card-top"><span class="badge">React</span></div>
-            <p class="desc">
-              The &lt;PlacesAutocomplete&gt; component and usePlacesAutocomplete hook.
-            </p>
-            <span class="cta">Open demo &rarr;</span>
-          </a>
-          <a class="card" href="/svelte/">
-            <div class="card-top"><span class="badge">Svelte</span></div>
-            <p class="desc">A Svelte 5 runes-based &lt;PlacesAutocomplete&gt; component.</p>
-            <span class="cta">Open demo &rarr;</span>
-          </a>
-          <a class="card" href="/solid/">
-            <div class="card-top"><span class="badge">Solid</span></div>
-            <p class="desc">The &lt;PlacesAutocomplete&gt; component with signals.</p>
-            <span class="cta">Open demo &rarr;</span>
-          </a>
-          <a class="card" href="/element/">
-            <div class="card-top"><span class="badge">Web Component</span></div>
-            <p class="desc">
-              The &lt;gpa-autocomplete&gt; custom element — any framework or plain HTML.
-            </p>
-            <span class="cta">Open demo &rarr;</span>
-          </a>
+      <header class="site-header">
+        <div class="shell header-inner">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">📍</span>
+            <span class="brand-name">google-places-autocomplete</span>
+            <span class="brand-version" id="version-badge">v0.0.0</span>
+          </div>
+          <div class="header-actions">
+            <div
+              class="segmented"
+              role="group"
+              aria-label="Color theme"
+              id="theme-switch"
+              data-active="dark"
+            >
+              <button type="button" data-theme="light" aria-pressed="false">Light</button>
+              <button type="button" data-theme="dark" aria-pressed="true">Dark</button>
+              <button type="button" data-theme="auto" aria-pressed="false">Auto</button>
+            </div>
+            <nav class="header-links" aria-label="Project">
+              <a href="https://anilkumarthakur60.github.io/google-places-autocomplete/">Docs</a>
+              <a href="https://github.com/anilkumarthakur60/google-places-autocomplete">GitHub</a>
+              <a href="https://www.npmjs.com/package/@anil-labs/google-places-autocomplete-core">
+                npm
+              </a>
+            </nav>
+          </div>
         </div>
-      </section>
+      </header>
 
-      <footer>
-        Every demo runs the same zero-dependency
-        <code>@anil-labs/google-places-autocomplete-core</code>
-        engine (<span id="version"></span>).
-        <a href="https://github.com/anilkumarthakur60/google-places-autocomplete">View on GitHub</a>
+      <main>
+        <!-- ---------------------------------------------------------------- -->
+        <section class="hero" id="try">
+          <div class="shell hero-inner">
+            <div class="hero-copy">
+              <p class="eyebrow">Vue · React · Svelte · Solid · Web Components</p>
+              <h1>Address autocomplete,<br />typed and billed right.</h1>
+              <p class="lead">
+                Debounced predictions on Google's Places API (New), with automatic session-token
+                billing, full keyboard navigation and fully-resolved place details — driven by one
+                zero-dependency engine, with an idiomatic binding per framework.
+              </p>
+              <div class="install">
+                <code id="install-cmd">npm i @anil-labs/google-places-autocomplete-vue</code>
+                <button type="button" id="install-copy" class="copy-btn">Copy</button>
+              </div>
+              <div class="hero-cta">
+                <a class="btn btn-primary" href="#configure">See the options</a>
+                <a
+                  class="btn btn-ghost"
+                  href="https://anilkumarthakur60.github.io/google-places-autocomplete/"
+                >
+                  Read the docs
+                </a>
+              </div>
+              <ul class="hero-stats">
+                <li><strong>1</strong><span>session token, auto-managed</span></li>
+                <li><strong>0</strong><span>deps in the core</span></li>
+                <li><strong>5</strong><span>framework adapters</span></li>
+              </ul>
+            </div>
+
+            <div class="hero-demo">
+              <div class="panel">
+                <div class="panel-head">
+                  <span class="panel-title">Try it</span>
+                  <span class="panel-hint">the framework-free &lt;gpa-autocomplete&gt;</span>
+                </div>
+                <div class="panel-body">
+                  <div id="hero-demo"></div>
+                  <p class="status" id="hero-status">Start typing an address to see suggestions.</p>
+                  <pre class="out" id="hero-output" hidden></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bring-your-own-key: this demo ships without a shared Google key,
+             so visitors paste their own to make every demo on the site live. -->
+        <section class="shell" aria-labelledby="api-key-title">
+          <div class="key-panel" id="key-panel">
+            <div class="key-panel-head">
+              <h2 id="api-key-title">Try it with your own API key</h2>
+              <p>
+                This demo ships without a shared Google key — the inputs are the real component, but
+                Google only returns suggestions with a key. Paste a
+                <a
+                  href="https://developers.google.com/maps/documentation/places/web-service/op-overview"
+                  >Places API (New)</a
+                >
+                key and every demo on this page — and every framework playground on this site — goes
+                live.
+              </p>
+            </div>
+            <form class="key-form" id="api-key-form">
+              <label class="key-label" for="api-key-input">Your Google Places API key</label>
+              <div class="key-row">
+                <input
+                  id="api-key-input"
+                  class="key-input"
+                  type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="AIza…"
+                />
+                <button type="submit" class="btn btn-primary btn-small" id="api-key-save">
+                  Use this key
+                </button>
+                <button type="button" class="btn btn-ghost btn-small" id="api-key-clear">
+                  Clear
+                </button>
+              </div>
+              <p class="key-status" id="api-key-status" role="status"></p>
+              <p class="key-note">
+                The key is stored only in this browser (<code>localStorage</code>) and sent only to
+                Google. Use a key restricted by HTTP referrer, and remove it here when you're done.
+              </p>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------------------------------------------------------------- -->
+        <section class="section" id="configure">
+          <div class="shell">
+            <div class="section-head">
+              <h2>Configure it</h2>
+              <p>
+                Every input below is a real <code>&lt;gpa-autocomplete&gt;</code> with different
+                attributes — bias a region, switch language, or tune the debounce. The code beside
+                each is exactly what mounts it.
+              </p>
+            </div>
+
+            <div class="demo-grid">
+              <article class="panel">
+                <div class="panel-head">
+                  <span class="panel-title">UK addresses</span>
+                  <span class="panel-hint">region-code="gb"</span>
+                </div>
+                <div class="panel-body">
+                  <div id="demo-uk"></div>
+                  <pre class="code">
+&lt;gpa-autocomplete
+  region-code="gb"
+  language-code="en"
+&gt;&lt;/gpa-autocomplete&gt;</pre
+                  >
+                </div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-head">
+                  <span class="panel-title">French, in French</span>
+                  <span class="panel-hint">region + language "fr"</span>
+                </div>
+                <div class="panel-body">
+                  <div id="demo-fr"></div>
+                  <pre class="code">
+&lt;gpa-autocomplete
+  region-code="fr"
+  language-code="fr"
+&gt;&lt;/gpa-autocomplete&gt;</pre
+                  >
+                </div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-head">
+                  <span class="panel-title">Instant</span>
+                  <span class="panel-hint">no debounce, 1 char</span>
+                </div>
+                <div class="panel-body">
+                  <div id="demo-instant"></div>
+                  <pre class="code">
+&lt;gpa-autocomplete
+  debounce-ms="0"
+  min-length="1"
+&gt;&lt;/gpa-autocomplete&gt;</pre
+                  >
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------------------------------------------------- -->
+        <section class="section section-alt" id="theming">
+          <div class="shell">
+            <div class="section-head">
+              <h2>Theming</h2>
+              <p>
+                The dropdown is styled with <code>--gpa-*</code> custom properties on
+                <code>.gpa-root</code>. It follows light/dark automatically; override a token to
+                re-skin it — here's the accent, live.
+              </p>
+            </div>
+            <div class="theming-grid">
+              <div class="panel">
+                <div class="panel-head">
+                  <span class="panel-title">Accent</span>
+                  <span class="panel-hint">focus a field to see it</span>
+                </div>
+                <div class="panel-body">
+                  <div class="swatches" role="group" aria-label="Accent color" id="accent-switch">
+                    <button type="button" data-accent="blue" aria-pressed="true">
+                      <span class="swatch" style="background: #2563eb"></span>Blue
+                    </button>
+                    <button type="button" data-accent="emerald" aria-pressed="false">
+                      <span class="swatch" style="background: #10b981"></span>Emerald
+                    </button>
+                    <button type="button" data-accent="rose" aria-pressed="false">
+                      <span class="swatch" style="background: #f43f5e"></span>Rose
+                    </button>
+                    <button type="button" data-accent="amber" aria-pressed="false">
+                      <span class="swatch" style="background: #f59e0b"></span>Amber
+                    </button>
+                  </div>
+                  <div id="accent-demo"></div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><span class="panel-title">What just changed</span></div>
+                <div class="panel-body">
+                  <pre class="code" id="accent-code"></pre>
+                  <p class="panel-note">
+                    Set it on any <code>.gpa-root</code> — inline, a wrapper, or a whole theme.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------------------------------------------------- -->
+        <section class="section" id="features">
+          <div class="shell">
+            <div class="section-head"><h2>Why this one</h2></div>
+            <div class="feature-grid">
+              <div class="feature">
+                <h3>Session-token billing</h3>
+                <p>
+                  A session token is minted per search and retired on select, so a whole
+                  type-then-pick counts as one autocomplete session — the way Google bills it — with
+                  nothing for you to manage.
+                </p>
+              </div>
+              <div class="feature">
+                <h3>Places API (New)</h3>
+                <p>
+                  Built on the current <code>places.googleapis.com</code> REST API, not the legacy
+                  widget — no <code>&lt;script&gt;</code> tag, no global <code>google.maps</code>,
+                  just <code>fetch</code>.
+                </p>
+              </div>
+              <div class="feature">
+                <h3>Resolved place details</h3>
+                <p>
+                  On select you get the full <code>PlaceDetails</code> — formatted address, lat/lng,
+                  and typed address components — not just the prediction text.
+                </p>
+              </div>
+              <div class="feature">
+                <h3>Keyboard &amp; ARIA</h3>
+                <p>
+                  A proper combobox: arrow keys move the active option, Enter selects, Escape
+                  closes, with <code>aria-expanded</code> / <code>aria-activedescendant</code> wired
+                  up.
+                </p>
+              </div>
+              <div class="feature">
+                <h3>One engine, real adapters</h3>
+                <p>
+                  All behaviour lives in the zero-dependency core; each adapter is a thin, idiomatic
+                  binding — <code>v-model</code> in Vue, a hook in React, runes in Svelte, signals
+                  in Solid.
+                </p>
+              </div>
+              <div class="feature">
+                <h3>Typed end to end</h3>
+                <p>
+                  Config, state, suggestions and resolved details are all fully typed. Location
+                  bias, field masks and region/language are all first-class options.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------------------------------------------------- -->
+        <section class="section section-alt" id="frameworks">
+          <div class="shell">
+            <div class="section-head">
+              <h2>Per-framework playgrounds</h2>
+              <p>
+                This page is framework-free — it runs the web component. Each adapter has its own
+                playground showing the idiomatic binding.
+              </p>
+            </div>
+            <div class="fw-grid" id="framework-grid">
+              <a class="fw-card" href="/vue/">
+                <span class="fw-badge">Vue 3</span>
+                <p class="fw-desc">The &lt;PlacesAutocomplete&gt; component with v-model.</p>
+                <span class="fw-cta">Open playground →</span>
+              </a>
+              <a class="fw-card" href="/react/">
+                <span class="fw-badge">React</span>
+                <p class="fw-desc">
+                  The &lt;PlacesAutocomplete&gt; component and usePlacesAutocomplete hook.
+                </p>
+                <span class="fw-cta">Open playground →</span>
+              </a>
+              <a class="fw-card" href="/svelte/">
+                <span class="fw-badge">Svelte</span>
+                <p class="fw-desc">A Svelte 5 runes-based &lt;PlacesAutocomplete&gt; component.</p>
+                <span class="fw-cta">Open playground →</span>
+              </a>
+              <a class="fw-card" href="/solid/">
+                <span class="fw-badge">Solid</span>
+                <p class="fw-desc">The &lt;PlacesAutocomplete&gt; component with signals.</p>
+                <span class="fw-cta">Open playground →</span>
+              </a>
+              <a class="fw-card" href="/element/">
+                <span class="fw-badge">Web Component</span>
+                <p class="fw-desc">
+                  The &lt;gpa-autocomplete&gt; custom element — any framework or plain HTML.
+                </p>
+                <span class="fw-cta">Open playground →</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="shell footer-inner">
+          <p>
+            Built by
+            <a href="https://github.com/anilkumarthakur60">Anil Kumar Thakur</a> · MIT licensed
+          </p>
+          <p class="muted">
+            Every demo runs the same zero-dependency
+            <code>@anil-labs/google-places-autocomplete-core</code> engine.
+          </p>
+        </div>
       </footer>
-    </main>
+    </div>
+
     <script type="module" src="/main.ts"></script>
   </body>
 </html>

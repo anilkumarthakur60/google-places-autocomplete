@@ -1,12 +1,15 @@
 import { defineComponent, onMounted, onUnmounted, ref, useId, watch } from 'vue'
 import type { PropType } from 'vue'
 import { usePlacesAutocomplete } from './usePlacesAutocomplete'
-import { bindOutsideClose } from '@anil-labs/google-places-autocomplete-core'
+import { bindOutsideClose, DEFAULT_LABELS } from '@anil-labs/google-places-autocomplete-core'
 import type {
   Fetcher,
+  LatLng,
   LocationBias,
+  LocationRestriction,
   PlaceDetails,
   PlacesAutocompleteError,
+  PlacesAutocompleteLabels,
   Suggestion,
 } from '@anil-labs/google-places-autocomplete-core'
 
@@ -14,7 +17,7 @@ export const PlacesAutocomplete = defineComponent({
   name: 'PlacesAutocomplete',
   props: {
     modelValue: { type: String, default: '' },
-    placeholder: { type: String, default: 'Search for an address…' },
+    placeholder: { type: String, default: undefined },
     apiKey: { type: String, default: undefined },
     fetcher: { type: Function as PropType<Fetcher>, default: undefined },
     debounceMs: { type: Number, default: undefined },
@@ -22,15 +25,21 @@ export const PlacesAutocomplete = defineComponent({
     languageCode: { type: String, default: undefined },
     regionCode: { type: String, default: undefined },
     includedRegionCodes: { type: Array as PropType<string[]>, default: undefined },
+    includedPrimaryTypes: { type: Array as PropType<string[]>, default: undefined },
     locationBias: { type: Object as PropType<LocationBias>, default: undefined },
+    locationRestriction: { type: Object as PropType<LocationRestriction>, default: undefined },
+    origin: { type: Object as PropType<LatLng>, default: undefined },
     resolveDetails: { type: Boolean, default: undefined },
+    placeFields: { type: Array as PropType<string[]>, default: undefined },
+    /** Override the built-in strings (searching / no-results) for i18n. */
+    labels: { type: Object as PropType<Partial<PlacesAutocompleteLabels>>, default: undefined },
   },
   emits: {
     'update:modelValue': (_value: string) => true,
     select: (_place: PlaceDetails, _suggestion: Suggestion) => true,
     error: (_error: PlacesAutocompleteError) => true,
   },
-  setup(props, { emit }) {
+  setup(props, { emit, slots }) {
     const uid = useId()
     const rootRef = ref<HTMLDivElement | null>(null)
     const { state, controller } = usePlacesAutocomplete({
@@ -41,8 +50,12 @@ export const PlacesAutocomplete = defineComponent({
       languageCode: props.languageCode,
       regionCode: props.regionCode,
       includedRegionCodes: props.includedRegionCodes,
+      includedPrimaryTypes: props.includedPrimaryTypes,
       locationBias: props.locationBias,
+      locationRestriction: props.locationRestriction,
+      origin: props.origin,
       resolveDetails: props.resolveDetails,
+      placeFields: props.placeFields,
       onSelect: (place, suggestion) => emit('select', place, suggestion),
       onError: (error) => emit('error', error),
     })
@@ -56,6 +69,44 @@ export const PlacesAutocomplete = defineComponent({
       () => props.modelValue,
       (next) => {
         if (next !== state.value.query) controller.setQuery(next)
+      },
+    )
+
+    // Live config: prop changes are pushed into the machine via setConfig()
+    // instead of requiring a remount. (`fetcher` is included too — Vue prop
+    // identity only changes when the parent actually passes a new one.)
+    watch(
+      () => [
+        props.apiKey,
+        props.fetcher,
+        props.debounceMs,
+        props.minLength,
+        props.languageCode,
+        props.regionCode,
+        props.includedRegionCodes,
+        props.includedPrimaryTypes,
+        props.locationBias,
+        props.locationRestriction,
+        props.origin,
+        props.resolveDetails,
+        props.placeFields,
+      ],
+      () => {
+        controller.setConfig({
+          apiKey: props.apiKey,
+          fetcher: props.fetcher,
+          debounceMs: props.debounceMs,
+          minLength: props.minLength,
+          languageCode: props.languageCode,
+          regionCode: props.regionCode,
+          includedRegionCodes: props.includedRegionCodes,
+          includedPrimaryTypes: props.includedPrimaryTypes,
+          locationBias: props.locationBias,
+          locationRestriction: props.locationRestriction,
+          origin: props.origin,
+          resolveDetails: props.resolveDetails,
+          placeFields: props.placeFields,
+        })
       },
     )
 
@@ -112,7 +163,9 @@ export const PlacesAutocomplete = defineComponent({
                 : undefined
             }
             autocomplete="off"
-            placeholder={props.placeholder}
+            placeholder={
+              props.placeholder ?? props.labels?.placeholder ?? DEFAULT_LABELS.placeholder
+            }
             value={current.query}
             onInput={handleInput}
             onKeydown={handleKeydown}
@@ -121,11 +174,11 @@ export const PlacesAutocomplete = defineComponent({
             <div class="gpa-panel" id={`${uid}-panel`}>
               {current.status === 'loading' ? (
                 <div class="gpa-status" role="status">
-                  Searching…
+                  {props.labels?.searching ?? DEFAULT_LABELS.searching}
                 </div>
               ) : current.suggestions.length === 0 ? (
                 <div class="gpa-empty" role="status">
-                  No results found
+                  {props.labels?.noResults ?? DEFAULT_LABELS.noResults}
                 </div>
               ) : (
                 <ul class="gpa-listbox" role="listbox">
@@ -142,9 +195,20 @@ export const PlacesAutocomplete = defineComponent({
                         controller.selectSuggestion(suggestion)
                       }}
                     >
-                      <div class="gpa-option-main">{suggestion.mainText}</div>
-                      {suggestion.secondaryText && (
-                        <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
+                      {slots.suggestion ? (
+                        // Scoped slot: the component keeps ownership of the
+                        // <li>, its ARIA wiring and selection handling.
+                        slots.suggestion({
+                          suggestion,
+                          active: index === current.activeIndex,
+                        })
+                      ) : (
+                        <>
+                          <div class="gpa-option-main">{suggestion.mainText}</div>
+                          {suggestion.secondaryText && (
+                            <div class="gpa-option-secondary">{suggestion.secondaryText}</div>
+                          )}
+                        </>
                       )}
                     </li>
                   ))}

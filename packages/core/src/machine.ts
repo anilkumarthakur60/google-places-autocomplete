@@ -41,31 +41,31 @@ const INITIAL_STATE: PlacesAutocompleteState = {
 export function createPlacesAutocomplete(
   config: PlacesAutocompleteConfig,
 ): PlacesAutocompleteController {
-  const {
-    apiKey,
-    fetcher = typeof fetch === 'function' ? fetch.bind(globalThis) : undefined,
-    debounceMs = 200,
-    minLength = 1,
-    resolveDetails = true,
-    placeFields = DEFAULT_PLACE_FIELDS,
-    languageCode,
-    regionCode,
-    includedRegionCodes,
-    locationBias,
-    onSelect,
-    onError,
-  } = config
+  // Mutable so setConfig() can merge changes into a LIVE controller — the
+  // wrappers no longer need to destroy/recreate to change the API key,
+  // region, debounce, etc. Every request reads from here at call time.
+  let cfg: PlacesAutocompleteConfig = { ...config }
 
-  if (!fetcher) {
+  const defaultFetcher: Fetcher | undefined =
+    typeof fetch === 'function' ? fetch.bind(globalThis) : undefined
+
+  if (!cfg.fetcher && !defaultFetcher) {
     throw new PlacesAutocompleteError(
       'No fetch implementation is available in this environment; pass config.fetcher explicitly.',
     )
   }
-  // A fresh binding with a non-optional type: TS narrowing from the guard
-  // above does not persist into the nested `search`/`resolveSelection`
-  // closures below (they may run long after this constructor call), so
-  // referencing the closured `fetcher` there would still type as optional.
-  const activeFetcher: Fetcher = fetcher
+
+  function resolveFetcher(): Fetcher {
+    const fetcher = cfg.fetcher ?? defaultFetcher
+    if (!fetcher) {
+      // Reachable only if setConfig() removed the fetcher in a fetch-less
+      // environment; surfaces as an error state via search()'s catch.
+      throw new PlacesAutocompleteError(
+        'No fetch implementation is available in this environment; pass config.fetcher explicitly.',
+      )
+    }
+    return fetcher
+  }
 
   let state: PlacesAutocompleteState = INITIAL_STATE
   const listeners = new Set<() => void>()
@@ -92,7 +92,7 @@ export function createPlacesAutocomplete(
     if (destroyed) return
     abortInFlight()
 
-    if (query.trim().length < minLength) {
+    if (query.trim().length < (cfg.minLength ?? 1)) {
       setState({ suggestions: [], status: 'idle', isOpen: false, activeIndex: -1, error: null })
       return
     }
@@ -111,13 +111,16 @@ export function createPlacesAutocomplete(
       const suggestions = await fetchAutocompleteSuggestions({
         input: query,
         sessionToken: session.get(),
-        apiKey: requireApiKey(apiKey),
-        fetcher: activeFetcher,
+        apiKey: requireApiKey(cfg.apiKey),
+        fetcher: resolveFetcher(),
         signal: controller.signal,
-        ...(languageCode ? { languageCode } : {}),
-        ...(regionCode ? { regionCode } : {}),
-        ...(includedRegionCodes ? { includedRegionCodes } : {}),
-        ...(locationBias ? { locationBias } : {}),
+        ...(cfg.languageCode ? { languageCode: cfg.languageCode } : {}),
+        ...(cfg.regionCode ? { regionCode: cfg.regionCode } : {}),
+        ...(cfg.includedRegionCodes ? { includedRegionCodes: cfg.includedRegionCodes } : {}),
+        ...(cfg.includedPrimaryTypes ? { includedPrimaryTypes: cfg.includedPrimaryTypes } : {}),
+        ...(cfg.locationBias ? { locationBias: cfg.locationBias } : {}),
+        ...(cfg.locationRestriction ? { locationRestriction: cfg.locationRestriction } : {}),
+        ...(cfg.origin ? { origin: cfg.origin } : {}),
       })
       // A newer request may have started (and its abort may not have settled
       // this promise) while this one was in flight — the id check is the
@@ -138,13 +141,17 @@ export function createPlacesAutocomplete(
           ? error
           : new PlacesAutocompleteError('Failed to fetch place suggestions', { cause: error })
       setState({ status: 'error', error: wrapped, suggestions: [], isOpen: false })
-      onError?.(wrapped)
+      cfg.onError?.(wrapped)
     }
   }
 
-  const debouncedSearch = debounce((query: string) => {
-    void search(query)
-  }, debounceMs)
+  function makeDebouncedSearch() {
+    return debounce((query: string) => {
+      void search(query)
+    }, cfg.debounceMs ?? 200)
+  }
+
+  let debouncedSearch = makeDebouncedSearch()
 
   async function resolveSelection(suggestion: Suggestion): Promise<void> {
     // Selecting a suggestion is terminal from the panel's perspective — close
@@ -152,28 +159,39 @@ export function createPlacesAutocomplete(
     // the duration of the details fetch below.
     setState({ isOpen: false })
 
-    if (!resolveDetails) {
+    if (!(cfg.resolveDetails ?? true)) {
       const minimal: PlaceDetails = {
         placeId: suggestion.placeId,
         displayName: suggestion.mainText,
         formattedAddress: suggestion.text,
         location: null,
         addressComponents: [],
+        raw: suggestion.raw,
       }
       session.reset()
       setState({ selected: minimal, suggestions: [], query: suggestion.text })
-      onSelect?.(minimal, suggestion)
+      cfg.onSelect?.(minimal, suggestion)
       return
     }
+
+    // Abortable like the autocomplete request, so destroy()/clear() mid-fetch
+    // actually cancels the network call rather than just ignoring its result.
+    abortInFlight()
+    const controller = new AbortController()
+    abortController = controller
 
     setState({ status: 'loading' })
     try {
       const details = await fetchPlaceDetails({
         placeId: suggestion.placeId,
         sessionToken: session.get(),
-        apiKey: requireApiKey(apiKey),
-        fetcher: activeFetcher,
-        fields: placeFields,
+        apiKey: requireApiKey(cfg.apiKey),
+        fetcher: resolveFetcher(),
+        fields: cfg.placeFields ?? DEFAULT_PLACE_FIELDS,
+        signal: controller.signal,
+        // Details come back in the same locale the suggestions were shown in.
+        ...(cfg.languageCode ? { languageCode: cfg.languageCode } : {}),
+        ...(cfg.regionCode ? { regionCode: cfg.regionCode } : {}),
       })
       if (destroyed) return
       setState({
@@ -183,15 +201,15 @@ export function createPlacesAutocomplete(
         query: details.formattedAddress || suggestion.text,
         status: 'ready',
       })
-      onSelect?.(details, suggestion)
+      cfg.onSelect?.(details, suggestion)
     } catch (error) {
-      if (destroyed) return
+      if (destroyed || isAbortError(error)) return
       const wrapped =
         error instanceof PlacesAutocompleteError
           ? error
           : new PlacesAutocompleteError('Failed to fetch place details', { cause: error })
       setState({ status: 'error', error: wrapped })
-      onError?.(wrapped)
+      cfg.onError?.(wrapped)
     } finally {
       // One session covers autocomplete + the details lookup that resolved
       // it; the next search must start a fresh one.
@@ -233,6 +251,29 @@ export function createPlacesAutocomplete(
 
     close() {
       setState({ isOpen: false })
+    },
+
+    setConfig(patch: Partial<PlacesAutocompleteConfig>) {
+      const debounceChanged =
+        patch.debounceMs !== undefined && patch.debounceMs !== (cfg.debounceMs ?? 200)
+      cfg = { ...cfg, ...patch }
+      // In-flight results would belong to the old config (old key, old
+      // region…) — drop them. requestId also invalidates any request whose
+      // abort hasn't settled yet.
+      abortInFlight()
+      requestId++
+      if (debounceChanged) {
+        debouncedSearch.cancel()
+        debouncedSearch = makeDebouncedSearch()
+      }
+    },
+
+    clear() {
+      abortInFlight()
+      requestId++
+      debouncedSearch.cancel()
+      session.reset()
+      setState({ ...INITIAL_STATE })
     },
 
     destroy() {

@@ -89,4 +89,59 @@ describe('GooglePlacesAutocompleteElement', () => {
     document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
     expect(document.querySelector<HTMLElement>(`${TAG} .gpa-panel`)?.hidden).toBe(true)
   })
+
+  it('applies a changed api-key attribute to the next request (live attributes)', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'A' }])))
+    const el = createElement(fetcher)
+    document.body.append(el)
+
+    el.setAttribute('api-key', 'rotated-key')
+
+    const input = document.querySelector<HTMLInputElement>(`${TAG} input`)!
+    input.value = 'kathmandu'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    const [, init] = fetcher.mock.calls[0]!
+    expect((init?.headers as Record<string, string>)['X-Goog-Api-Key']).toBe('rotated-key')
+  })
+
+  it('renders custom option content through renderOption', async () => {
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(jsonResponse(suggestionsBody([{ id: 'p1', main: 'Main St' }])))
+    const el = createElement(fetcher)
+    ;(
+      el as unknown as { renderOption?: (s: { mainText: string }, active: boolean) => string }
+    ).renderOption = (s) => `custom: ${s.mainText}`
+    document.body.append(el)
+
+    const input = document.querySelector<HTMLInputElement>(`${TAG} input`)!
+    input.value = 'main'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await vi.advanceTimersByTimeAsync(0)
+    await vi.advanceTimersByTimeAsync(0)
+
+    const option = document.querySelector(`${TAG} .gpa-option`)
+    expect(option?.textContent).toBe('custom: Main St')
+  })
+
+  it('uses searching-text and no-results-text labels', async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(jsonResponse({ suggestions: [] }))
+    const el = createElement(fetcher)
+    el.setAttribute('searching-text', 'Khojdai…')
+    el.setAttribute('no-results-text', 'Kehi bhetiyena')
+    document.body.append(el)
+
+    const input = document.querySelector<HTMLInputElement>(`${TAG} input`)!
+    input.value = 'zzz'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await vi.advanceTimersByTimeAsync(0)
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(document.querySelector(`${TAG} .gpa-empty`)?.textContent).toBe('Kehi bhetiyena')
+  })
 })

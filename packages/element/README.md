@@ -1,19 +1,34 @@
 # @anil-labs/google-places-autocomplete-element
 
-Framework-free `<gpa-autocomplete>` custom element for address autocomplete, built on Google's Places API (New). Works in any framework — or none.
+Framework-free `<gpa-autocomplete>` custom element for address autocomplete, built on Google's Places API (New). Works in any framework — or none. Self-injects its stylesheet, so there's no separate CSS import.
 
-## Install
+## Via a CDN — no build step
+
+The package ships a standalone bundle (engine + styles baked in) that auto-registers `<gpa-autocomplete>`. One script tag, zero setup:
+
+```html
+<script src="https://unpkg.com/@anil-labs/google-places-autocomplete-element"></script>
+
+<gpa-autocomplete api-key="YOUR_API_KEY" placeholder="Search for an address…"></gpa-autocomplete>
+
+<script>
+  document.querySelector('gpa-autocomplete').addEventListener('select', (event) => {
+    console.log(event.detail.place.formattedAddress)
+  })
+</script>
+```
+
+Pin a version in production (`.../@anil-labs/google-places-autocomplete-element@x.y.z`). The engine is bundled in, so don't also load `-core` separately.
+
+## With a bundler
 
 ```sh
 npm install @anil-labs/google-places-autocomplete-element
 ```
 
-## Usage
-
 ```html
 <script type="module">
   import { defineGooglePlacesAutocompleteElement } from '@anil-labs/google-places-autocomplete-element'
-  import '@anil-labs/google-places-autocomplete-core/styles.css'
 
   defineGooglePlacesAutocompleteElement('gpa-autocomplete')
 
@@ -27,7 +42,7 @@ npm install @anil-labs/google-places-autocomplete-element
 </script>
 ```
 
-> **Configure before connecting.** `customElements.define()` synchronously upgrades any matching tag already parsed into the document — writing `<gpa-autocomplete api-key="...">` directly in static HTML may connect it before your script sets attributes, depending on script placement. Creating it with `document.createElement`, configuring it, and only then appending it (as above) avoids that entirely.
+> **Configure before connecting.** `customElements.define()` synchronously upgrades any matching tag already parsed into the document — building the element from a script and setting `api-key` *after* appending it may connect it first. Set attributes before `append()` (as above), or declare the tag with its attributes directly in HTML (as in the CDN example).
 
 Full documentation: [Web Component guide](https://anilkumarthakur60.github.io/google-places-autocomplete/guide/frameworks/web-component) · [getting started](https://anilkumarthakur60.github.io/google-places-autocomplete/guide/getting-started) (Google Cloud setup) · [API reference](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core).
 

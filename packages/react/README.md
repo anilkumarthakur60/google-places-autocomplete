@@ -31,11 +31,11 @@ Full documentation: [React guide](https://anilkumarthakur60.github.io/google-pla
 
 ## Props
 
-All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, plus `value`/`onValueChange` (controlled input), `onSelect`, `onError`, `placeholder`, `className`. `onSelect`/`onError` are always safe as fresh inline functions; other config is read once at mount — remount via a `key` prop to change it.
+All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, plus `value`/`onValueChange` (controlled input), `onSelect`, `onError`, `placeholder`, `className`. `onSelect`/`onError` are always safe as fresh inline functions; other config is read once at mount  remount via a `key` prop to change it.
 
 ## Headless usage
 
-`usePlacesAutocomplete` — the hook the component is built on (`useSyncExternalStore` under the hood) — is also exported, for custom markup.
+`usePlacesAutocomplete`  the hook the component is built on (`useSyncExternalStore` under the hood)  is also exported, for custom markup.
 
 ## License
 

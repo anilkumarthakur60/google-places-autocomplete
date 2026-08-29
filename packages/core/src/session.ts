@@ -1,6 +1,6 @@
 /**
  * Google bills Autocomplete + Place Details as a single session when every
- * request in the flow shares one session token — one lookup, not two. A new
+ * request in the flow shares one session token  one lookup, not two. A new
  * token must be generated per session; reusing a token across sessions (or
  * never resetting one) forfeits that billing benefit.
  */

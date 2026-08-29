@@ -15,8 +15,8 @@ export interface UsePlacesAutocompleteReturn {
 /**
  * Binds `core`'s subscribe/getState machine to a Vue `shallowRef`. The
  * machine already hands out a brand-new state object on every change (see
- * `machine.ts`'s `setState`), so a shallow ref — reassign `.value`, no deep
- * proxying — is exactly the right amount of reactivity, and cheaper than
+ * `machine.ts`'s `setState`), so a shallow ref  reassign `.value`, no deep
+ * proxying  is exactly the right amount of reactivity, and cheaper than
  * `reactive()` for state that includes an `Error` instance.
  */
 export function usePlacesAutocomplete(

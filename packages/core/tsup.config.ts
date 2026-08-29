@@ -3,7 +3,7 @@ import { copyFileSync } from 'node:fs'
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  // `iife` produces dist/index.global.js — a plain <script>-tag build exposing
+  // `iife` produces dist/index.global.js  a plain <script>-tag build exposing
   // the engine as `window.GooglePlacesAutocompleteCore`, for no-bundler use.
   format: ['esm', 'cjs', 'iife'],
   globalName: 'GooglePlacesAutocompleteCore',

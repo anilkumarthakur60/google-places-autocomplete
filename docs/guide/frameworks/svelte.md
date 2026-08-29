@@ -29,7 +29,7 @@ All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are 
 | `onSelect`     | `(place: PlaceDetails, suggestion: Suggestion) => void` |                   |
 | `onError`      | `(error: PlacesAutocompleteError) => void`     |                            |
 
-Requires Svelte 5 (runes mode). `apiKey`/`debounceMs`/etc. are read once when the component is created — apply a change by remounting (e.g. with an `{#key ...}` block) rather than expecting it to update live.
+Requires Svelte 5 (runes mode). `apiKey`/`debounceMs`/etc. are read once when the component is created  apply a change by remounting (e.g. with an `{#key ...}` block) rather than expecting it to update live.
 
 ## Custom suggestion rendering
 

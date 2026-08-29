@@ -1,5 +1,5 @@
 // Post-build smoke test: mounts the ACTUAL dist/index.js bundle (not src/)
-// under jsdom — the same guard used by the other wrapper packages, catching
+// under jsdom  the same guard used by the other wrapper packages, catching
 // a broken esbuild-plugin-solid transform (e.g. Solid's reactive DOM-update
 // code silently failing to attach) before it ships.
 import { JSDOM } from 'jsdom'

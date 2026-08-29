@@ -30,7 +30,7 @@ All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are 
 | `placeholder`     | `string`                      |                                                          |
 | `class`           | `string`                      | Merged onto the root `<div>`.                          |
 
-`apiKey`/`debounceMs`/etc. are read once when the component is created, matching the other wrappers — apply a change by remounting rather than expecting a live update.
+`apiKey`/`debounceMs`/etc. are read once when the component is created, matching the other wrappers  apply a change by remounting rather than expecting a live update.
 
 ## Custom suggestion rendering
 

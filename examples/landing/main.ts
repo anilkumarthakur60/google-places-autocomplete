@@ -1,4 +1,4 @@
-// No CSS import needed — the element self-injects its stylesheet on connect;
+// No CSS import needed  the element self-injects its stylesheet on connect;
 // the page chrome is linked as ./styles.css from index.html.
 import { defineGooglePlacesAutocompleteElement } from '@anil-labs/google-places-autocomplete-element'
 import {
@@ -50,7 +50,7 @@ const themeSwitch = el('theme-switch')
 
 function applyTheme(theme: Theme): void {
   // The element follows this via the `.page[data-theme] .gpa-root` overrides in
-  // styles.css — no per-instance work needed.
+  // styles.css  no per-instance work needed.
   page.dataset.theme = theme
   themeSwitch.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
     button.setAttribute('aria-pressed', String(button.dataset.theme === theme))
@@ -66,7 +66,7 @@ themeSwitch.addEventListener('click', (event) => {
 // ------------------------------------------------------------------- demos
 //
 // Config attributes on <gpa-autocomplete> are read once, at first connection
-// — the element's documented contract is "change config by recreating the
+//  the element's documented contract is "change config by recreating the
 // element". The visitor can swap in their own API key at runtime (below), so
 // every demo is described as a spec and mounted through remountAll(): saving
 // a key tears the elements down and recreates them with the new one.
@@ -76,7 +76,7 @@ let apiKey = getDemoApiKey()
 interface DemoSpec {
   container: string
   attrs: Record<string, string>
-  /** Re-attached on every (re)mount — listeners die with the old element. */
+  /** Re-attached on every (re)mount  listeners die with the old element. */
   wire?: (node: HTMLElement) => void
 }
 
@@ -134,7 +134,7 @@ const DEMOS: DemoSpec[] = [
     container: 'accent-demo',
     attrs: { placeholder: 'Focus me to see the accent…' },
     wire: (node) => {
-      // A fresh element loses the inline accent — restore the active one.
+      // A fresh element loses the inline accent  restore the active one.
       node.style.setProperty('--gpa-accent', ACCENTS[currentAccent])
     },
   },
@@ -167,15 +167,15 @@ const keyStatus = el('api-key-status')
 
 function describeKeySource(): string {
   const stored = getStoredApiKey()
-  if (stored) return `Using your key (…${stored.slice(-4)}) — stored in this browser.`
+  if (stored) return `Using your key (…${stored.slice(-4)})  stored in this browser.`
   if (getEnvApiKey()) return 'Using the key this build was made with.'
-  return 'No key yet — the demos render, but Google returns no suggestions until you add one.'
+  return 'No key yet  the demos render, but Google returns no suggestions until you add one.'
 }
 
 function applyKey(next: string): void {
   setStoredApiKey(next)
   apiKey = getDemoApiKey()
-  // Recreate every demo element with the new key — the element's documented
+  // Recreate every demo element with the new key  the element's documented
   // way to change config (attributes are read once, at first connection).
   mountAll()
   keyStatus.textContent = describeKeySource()
@@ -202,7 +202,7 @@ const accentCode = el('accent-code')
 function applyAccent(name: AccentName): void {
   currentAccent = name
   const value = ACCENTS[name]
-  // Query live — the demo element is recreated whenever the API key changes.
+  // Query live  the demo element is recreated whenever the API key changes.
   const node = document.querySelector<HTMLElement>('#accent-demo gpa-autocomplete')
   // Inline on the element (which carries .gpa-root) beats the stylesheet's own
   // `.gpa-root { --gpa-accent }`. The focus ring and active option use it.

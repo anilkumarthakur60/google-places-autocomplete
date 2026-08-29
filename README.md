@@ -1,6 +1,6 @@
 # @anil-labs/google-places-autocomplete
 
-A typed address autocomplete built on Google's **Places API (New)** — debounced predictions, automatic session-token billing, keyboard navigation and resolved place details. Zero-dependency core, framework-idiomatic adapters for Vue, React, Svelte, Solid and Web Components.
+A typed address autocomplete built on Google's **Places API (New)**  debounced predictions, automatic session-token billing, keyboard navigation and resolved place details. Zero-dependency core, framework-idiomatic adapters for Vue, React, Svelte, Solid and Web Components.
 
 [Documentation](https://anilkumarthakur60.github.io/google-places-autocomplete/) · [Live demos](https://anil-labs-google-places-autocomplete.vercel.app)
 
@@ -43,7 +43,7 @@ See the [getting started guide](https://anilkumarthakur60.github.io/google-place
 
 ## Why this over the legacy Autocomplete widget?
 
-- **No Maps JS SDK.** Talks to `places.googleapis.com` with plain `fetch` — no script loader, no `google.maps` global.
+- **No Maps JS SDK.** Talks to `places.googleapis.com` with plain `fetch`  no script loader, no `google.maps` global.
 - **Correct billing by default.** Autocomplete + Place Details share one session token automatically, matching Google's guidance for how the session-based pricing is supposed to work.
 - **Bring your own key handling.** Pass `apiKey` directly, or override `fetcher` to proxy through your own backend and never expose a key to the browser.
 
@@ -51,7 +51,7 @@ See [Session tokens & billing](https://anilkumarthakur60.github.io/google-places
 
 ## Theming
 
-Every wrapper renders the same `.gpa-*` class names, styled by `@anil-labs/google-places-autocomplete-core/styles.css` via CSS custom properties (`--gpa-bg`, `--gpa-fg`, `--gpa-accent`, etc.) — override them on `.gpa-root` to theme, or replace the stylesheet entirely for full control.
+Every wrapper renders the same `.gpa-*` class names, styled by `@anil-labs/google-places-autocomplete-core/styles.css` via CSS custom properties (`--gpa-bg`, `--gpa-fg`, `--gpa-accent`, etc.)  override them on `.gpa-root` to theme, or replace the stylesheet entirely for full control.
 
 ## Accessibility
 
@@ -59,7 +59,7 @@ The input uses `role="combobox"` with `aria-expanded`, `aria-controls` and `aria
 
 ## Browser support
 
-Any environment with `fetch`, `AbortController` and `crypto.randomUUID()` (with a fallback generator when the last one is unavailable) — effectively all evergreen browsers and Node ≥ 18.
+Any environment with `fetch`, `AbortController` and `crypto.randomUUID()` (with a fallback generator when the last one is unavailable)  effectively all evergreen browsers and Node ≥ 18.
 
 ## Development
 

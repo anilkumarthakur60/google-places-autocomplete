@@ -27,7 +27,7 @@ function handleSelect(place: PlaceDetails) {
 
 ## Props
 
-All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are accepted as props (in kebab-case, per Vue convention — e.g. `debounce-ms`, `region-code`), plus:
+All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are accepted as props (in kebab-case, per Vue convention  e.g. `debounce-ms`, `region-code`), plus:
 
 | Prop          | Type     | Default                     |
 | ------------- | -------- | ---------------------------- |
@@ -42,7 +42,7 @@ All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are 
 | `select`              | `(place: PlaceDetails, suggestion: Suggestion)` |
 | `error`               | `(error: PlacesAutocompleteError)`          |
 
-`apiKey`/`debounceMs`/etc. are read once when the component is created — to change them, remount the component (e.g. wrap it in a `<template :key="...">` block) rather than expecting a live update.
+`apiKey`/`debounceMs`/etc. are read once when the component is created  to change them, remount the component (e.g. wrap it in a `<template :key="...">` block) rather than expecting a live update.
 
 ## Custom suggestion rendering
 

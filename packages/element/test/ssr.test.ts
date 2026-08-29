@@ -1,7 +1,7 @@
 // @vitest-environment node
 //
 // Regression guard: this file runs under plain Node (no jsdom), i.e. no
-// `HTMLElement`/`customElements` globals — exactly what an SSR pass in
+// `HTMLElement`/`customElements` globals  exactly what an SSR pass in
 // Next.js/Nuxt/SvelteKit looks like. Merely importing the module must not
 // throw (see the SSR-safety note in GooglePlacesAutocompleteElement.ts).
 import { describe, expect, it } from 'vitest'

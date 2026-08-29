@@ -31,7 +31,7 @@ Full documentation: [Solid guide](https://anilkumarthakur60.github.io/google-pla
 
 ## Props
 
-All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, plus `value`/`onValueChange` (controlled input), `onSelect`, `onError`, `placeholder`, `class`. `apiKey`/`debounceMs`/etc. are read once at construction — remount to change them.
+All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, plus `value`/`onValueChange` (controlled input), `onSelect`, `onError`, `placeholder`, `class`. `apiKey`/`debounceMs`/etc. are read once at construction  remount to change them.
 
 ## License
 

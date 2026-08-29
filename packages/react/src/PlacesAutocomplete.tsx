@@ -24,7 +24,7 @@ export interface PlacesAutocompleteProps extends Omit<
   labels?: Partial<PlacesAutocompleteLabels>
   /**
    * Replace the default two-line option rendering. The component keeps
-   * ownership of the <li>, its ARIA wiring and selection handling — return
+   * ownership of the <li>, its ARIA wiring and selection handling  return
    * just the option's content.
    */
   renderSuggestion?: (suggestion: Suggestion, ctx: { active: boolean }) => ReactNode

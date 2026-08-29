@@ -20,7 +20,7 @@
     "sourceMap": true,
     // tsup's dts step (rollup-plugin-dts) synthesizes its own compiler host
     // with an implicit `baseUrl`, which TS 6 now flags even though nothing
-    // in this repo sets baseUrl itself. Nothing to migrate — just silence it.
+    // in this repo sets baseUrl itself. Nothing to migrate  just silence it.
     "ignoreDeprecations": "6.0"
   }
 }

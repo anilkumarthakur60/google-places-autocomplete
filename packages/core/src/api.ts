@@ -13,7 +13,7 @@ import type {
 const AUTOCOMPLETE_URL = 'https://places.googleapis.com/v1/places:autocomplete'
 const PLACE_DETAILS_BASE_URL = 'https://places.googleapis.com/v1/places'
 
-// Only the fields this module actually reads — Google's real responses carry
+// Only the fields this module actually reads  Google's real responses carry
 // much more, and `unknown`-typing the rest keeps us honest about that.
 interface RawMatch {
   startOffset?: number
@@ -118,7 +118,7 @@ export async function fetchAutocompleteSuggestions(
       secondaryText: prediction.structuredFormat?.secondaryText?.text ?? '',
       types: prediction.types ?? [],
       textMatches: mapMatches(prediction.text?.matches),
-      // When there is no structuredFormat, mainText falls back to `text` —
+      // When there is no structuredFormat, mainText falls back to `text` 
       // so its match ranges must fall back with it or highlights misalign.
       mainTextMatches: prediction.structuredFormat?.mainText
         ? mapMatches(prediction.structuredFormat.mainText.matches)

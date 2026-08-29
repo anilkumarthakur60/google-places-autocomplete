@@ -32,7 +32,7 @@ Full documentation: [Svelte guide](https://anilkumarthakur60.github.io/google-pl
 
 ## Props
 
-All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, plus `value` (bindable via `bind:value`), `placeholder`, `onSelect`, `onError`. Requires Svelte 5 (runes mode). `apiKey`/`debounceMs`/etc. are read once at construction — remount to change them.
+All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, plus `value` (bindable via `bind:value`), `placeholder`, `onSelect`, `onError`. Requires Svelte 5 (runes mode). `apiKey`/`debounceMs`/etc. are read once at construction  remount to change them.
 
 ## License
 

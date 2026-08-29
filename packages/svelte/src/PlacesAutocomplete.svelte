@@ -50,7 +50,7 @@
     onError: (error) => onError?.(error),
   })
 
-  // Live config: prop changes flow into the machine via setConfig() —
+  // Live config: prop changes flow into the machine via setConfig() 
   // no remount needed. The effect also runs once on mount with the values
   // the controller was constructed from; that call is a harmless no-op
   // (nothing is in flight yet, and the merged config is identical).
@@ -78,7 +78,7 @@
   // Lets a parent reset the field (e.g. on form submit) by writing to the
   // bound value. The machine updates `machineState.query` synchronously inside
   // setQuery, so by the time this effect re-runs the two are already equal
-  // and it no-ops — no feedback loop with handleInput below.
+  // and it no-ops  no feedback loop with handleInput below.
   $effect(() => {
     if (value !== machineState.query) controller.setQuery(value ?? '')
   })

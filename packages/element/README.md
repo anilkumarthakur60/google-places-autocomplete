@@ -1,8 +1,8 @@
 # @anil-labs/google-places-autocomplete-element
 
-Framework-free `<gpa-autocomplete>` custom element for address autocomplete, built on Google's Places API (New). Works in any framework — or none. Self-injects its stylesheet, so there's no separate CSS import.
+Framework-free `<gpa-autocomplete>` custom element for address autocomplete, built on Google's Places API (New). Works in any framework  or none. Self-injects its stylesheet, so there's no separate CSS import.
 
-## Via a CDN — no build step
+## Via a CDN  no build step
 
 The package ships a standalone bundle (engine + styles baked in) that auto-registers `<gpa-autocomplete>`. One script tag, zero setup:
 
@@ -42,7 +42,7 @@ npm install @anil-labs/google-places-autocomplete-element
 </script>
 ```
 
-> **Configure before connecting.** `customElements.define()` synchronously upgrades any matching tag already parsed into the document — building the element from a script and setting `api-key` *after* appending it may connect it first. Set attributes before `append()` (as above), or declare the tag with its attributes directly in HTML (as in the CDN example).
+> **Configure before connecting.** `customElements.define()` synchronously upgrades any matching tag already parsed into the document  building the element from a script and setting `api-key` *after* appending it may connect it first. Set attributes before `append()` (as above), or declare the tag with its attributes directly in HTML (as in the CDN example).
 
 Full documentation: [Web Component guide](https://anilkumarthakur60.github.io/google-places-autocomplete/guide/frameworks/web-component) · [getting started](https://anilkumarthakur60.github.io/google-places-autocomplete/guide/getting-started) (Google Cloud setup) · [API reference](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core).
 
@@ -52,11 +52,11 @@ Full documentation: [Web Component guide](https://anilkumarthakur60.github.io/go
 
 ## Events
 
-`select` (`detail: { place, suggestion }`), `gpaerror` (`detail: { error }` — named to avoid ambiguity with the DOM's built-in `error` event).
+`select` (`detail: { place, suggestion }`), `gpaerror` (`detail: { error }`  named to avoid ambiguity with the DOM's built-in `error` event).
 
 ## SSR-safe
 
-Safe to import during server-side rendering (Next.js/Nuxt/SvelteKit) — the module doesn't reference `HTMLElement`/`customElements` at load time, only when actually connected in a browser.
+Safe to import during server-side rendering (Next.js/Nuxt/SvelteKit)  the module doesn't reference `HTMLElement`/`customElements` at load time, only when actually connected in a browser.
 
 ## License
 

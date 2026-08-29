@@ -17,7 +17,7 @@ const dom = new JSDOM('<!doctype html><body></body>', {
 
 // Real browsers (the CDN target) ship a global `fetch`; jsdom does not. Provide
 // one so the element takes its zero-config default-fetch path on connect,
-// exactly as it would from a real <script> tag. It never resolves — we only
+// exactly as it would from a real <script> tag. It never resolves  we only
 // assert the drop-in contract (register/mount/style), not a live request.
 dom.window.fetch = () => new Promise(() => {})
 

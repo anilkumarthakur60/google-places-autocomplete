@@ -1,6 +1,6 @@
-// Post-build guard against the ACTUAL built artifact — the deployed page, not
+// Post-build guard against the ACTUAL built artifact  the deployed page, not
 // source. A broken landing fails silently: the markup renders and only the
-// autocomplete fields — the point of the page — come up dead. Typechecking
+// autocomplete fields  the point of the page  come up dead. Typechecking
 // can't catch a renamed id, an element never mounted, or a listener on the
 // wrong node. So this mounts the real bundle in jsdom (the repo's test DOM),
 // lets it run, and asserts every demo field mounts and the controls react.
@@ -74,7 +74,7 @@ for (const href of ['/vue/', '/react/', '/svelte/', '/solid/', '/element/']) {
 // ---- every demo field mounted (the element upgraded and rendered an input) ----
 for (const id of ['hero-demo', 'demo-uk', 'demo-fr', 'demo-instant', 'accent-demo']) {
   const input = $(`#${id} input.gpa-input`)
-  check(input != null, `#${id}: no input.gpa-input — the element never mounted.`)
+  check(input != null, `#${id}: no input.gpa-input  the element never mounted.`)
   if (input) {
     check(input.getAttribute('role') === 'combobox', `#${id}: input is missing role="combobox".`)
   }

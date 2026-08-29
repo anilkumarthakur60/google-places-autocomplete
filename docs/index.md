@@ -3,7 +3,7 @@ layout: home
 hero:
   name: '@anil-labs/google-places-autocomplete'
   text: Typed address autocomplete
-  tagline: Built on Google's Places API (New) — debounced predictions, automatic session-token billing, keyboard navigation and resolved place details. Zero-dependency core, framework-idiomatic adapters.
+  tagline: Built on Google's Places API (New)  debounced predictions, automatic session-token billing, keyboard navigation and resolved place details. Zero-dependency core, framework-idiomatic adapters.
   actions:
     - theme: brand
       text: Get started
@@ -14,9 +14,9 @@ hero:
 
 features:
   - title: Zero-dependency core
-    details: The engine talks to Google's REST API with plain fetch — no Maps JS SDK script loader, no global namespace.
+    details: The engine talks to Google's REST API with plain fetch  no Maps JS SDK script loader, no global namespace.
   - title: Correct session billing
-    details: Autocomplete + Place Details share one session token automatically, matching Google's billing guidance — you don't have to think about it.
+    details: Autocomplete + Place Details share one session token automatically, matching Google's billing guidance  you don't have to think about it.
   - title: Every major framework
     details: Idiomatic components for Vue, React, Svelte and Solid, plus a framework-free Web Component for everything else.
   - title: Bring your own key handling

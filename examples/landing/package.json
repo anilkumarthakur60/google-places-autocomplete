@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Framework-neutral landing page for @anil-labs/google-places-autocomplete — the live demo runs the <gpa-autocomplete> web component directly, so it needs no framework runtime.",
+  "description": "Framework-neutral landing page for @anil-labs/google-places-autocomplete  the live demo runs the <gpa-autocomplete> web component directly, so it needs no framework runtime.",
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/check-page.mjs",

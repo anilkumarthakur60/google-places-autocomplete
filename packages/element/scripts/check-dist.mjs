@@ -1,5 +1,5 @@
 // Post-build smoke test: registers and mounts the ACTUAL dist/index.js
-// bundle (not src/) under jsdom — the same guard used by every other
+// bundle (not src/) under jsdom  the same guard used by every other
 // wrapper package.
 import { JSDOM } from 'jsdom'
 

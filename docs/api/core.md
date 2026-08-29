@@ -1,6 +1,6 @@
 # Core (`@anil-labs/google-places-autocomplete-core`)
 
-Framework-agnostic engine. Every wrapper package is a thin binding on top of this — you only need it directly for headless/custom-rendering use cases.
+Framework-agnostic engine. Every wrapper package is a thin binding on top of this  you only need it directly for headless/custom-rendering use cases.
 
 ## `createPlacesAutocomplete(config)`
 
@@ -8,7 +8,7 @@ Framework-agnostic engine. Every wrapper package is a thin binding on top of thi
 function createPlacesAutocomplete(config: PlacesAutocompleteConfig): PlacesAutocompleteController
 ```
 
-Creates one autocomplete session controller. Config can be changed later on the live controller via [`setConfig()`](#placesautocompletecontroller) — every wrapper uses that to make its props/attributes live.
+Creates one autocomplete session controller. Config can be changed later on the live controller via [`setConfig()`](#placesautocompletecontroller)  every wrapper uses that to make its props/attributes live.
 
 ## `PlacesAutocompleteConfig`
 
@@ -81,7 +81,7 @@ interface SuggestionMatch {
 }
 ```
 
-Use the match ranges to bold the typed part of each suggestion the way Google's own widget does — e.g. wrap `mainText.slice(startOffset, endOffset)` in `<strong>` inside a custom suggestion renderer.
+Use the match ranges to bold the typed part of each suggestion the way Google's own widget does  e.g. wrap `mainText.slice(startOffset, endOffset)` in `<strong>` inside a custom suggestion renderer.
 
 ## `PlaceDetails`
 
@@ -124,7 +124,7 @@ interface PlacesAutocompleteLabels {
 }
 ```
 
-Every wrapper accepts a `labels` prop (the element takes `searching-text` / `no-results-text` attributes) merged over the exported `DEFAULT_LABELS` — override for i18n or white-labeling.
+Every wrapper accepts a `labels` prop (the element takes `searching-text` / `no-results-text` attributes) merged over the exported `DEFAULT_LABELS`  override for i18n or white-labeling.
 
 ## `Fetcher`
 
@@ -132,7 +132,7 @@ Every wrapper accepts a `labels` prop (the element takes `searching-text` / `no-
 type Fetcher = (input: string | URL, init?: RequestInit) => Promise<Response>
 ```
 
-Same shape as `fetch` itself — override it to proxy through your own backend. See [Session tokens & billing](/guide/session-tokens#proxying-through-your-own-backend).
+Same shape as `fetch` itself  override it to proxy through your own backend. See [Session tokens & billing](/guide/session-tokens#proxying-through-your-own-backend).
 
 ## `PlacesAutocompleteError`
 

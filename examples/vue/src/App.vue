@@ -24,7 +24,7 @@ function handleError(error: PlacesAutocompleteError): void {
 
 <template>
   <main class="demo">
-    <h1>@anil-labs/google-places-autocomplete — Vue</h1>
+    <h1>@anil-labs/google-places-autocomplete  Vue</h1>
     <p class="tag">
       Type an address below. Selecting a suggestion resolves the full place via the same session.
     </p>

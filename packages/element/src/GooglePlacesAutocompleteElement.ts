@@ -14,7 +14,7 @@ import type {
   Suggestion,
 } from '@anil-labs/google-places-autocomplete-core'
 // Inlined as a string at build time (see tsup.config.ts) and injected on first
-// connect, so the element is self-styling — no separate CSS import needed,
+// connect, so the element is self-styling  no separate CSS import needed,
 // including via a plain <script> tag from a CDN.
 import styles from '@anil-labs/google-places-autocomplete-core/styles.css'
 
@@ -43,7 +43,7 @@ function injectStyles(): void {
 
 let uidCounter = 0
 
-// Under SSR/Node, `HTMLElement` doesn't exist at all — merely evaluating
+// Under SSR/Node, `HTMLElement` doesn't exist at all  merely evaluating
 // `class X extends HTMLElement` throws the moment this module is imported
 // (class-extends resolves its base identifier immediately, not lazily),
 // which crashes frameworks like Next.js/Nuxt/SvelteKit that server-render
@@ -56,16 +56,16 @@ const HTMLElementBase: typeof HTMLElement =
 
 /**
  * A framework-free custom element. Renders into light DOM (not a shadow
- * root) so it picks up the same `.gpa-*` classes — and the same imported
- * `@anil-labs/google-places-autocomplete-core/styles.css` — as every other
+ * root) so it picks up the same `.gpa-*` classes  and the same imported
+ * `@anil-labs/google-places-autocomplete-core/styles.css`  as every other
  * wrapper, rather than needing its own duplicated/inlined stylesheet.
  *
  * Every observed attribute is LIVE: mutate `api-key`, `debounce-ms`,
  * `region-code`, … after connection and the change applies to the next
- * request via the controller's `setConfig()` — the element behaves the way
+ * request via the controller's `setConfig()`  the element behaves the way
  * HTML authors expect attributes to behave. Object-valued config
  * (`fetcher`, `locationBias`, `renderOption`, …) rides on JS properties,
- * read when the element connects — set those before appending it.
+ * read when the element connects  set those before appending it.
  */
 export class GooglePlacesAutocompleteElement extends HTMLElementBase {
   static get observedAttributes(): readonly string[] {
@@ -139,7 +139,7 @@ export class GooglePlacesAutocompleteElement extends HTMLElementBase {
         break
       case 'searching-text':
       case 'no-results-text':
-        // Pure presentation — re-render the panel with the new label.
+        // Pure presentation  re-render the panel with the new label.
         this.#syncFromState()
         break
     }

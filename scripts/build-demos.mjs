@@ -50,7 +50,7 @@ for (const { slug, filter } of demos) {
 //
 //    `--emptyOutDir` is deliberately omitted: dist-demo already holds the
 //    five demo builds at this point, and Vite would wipe them. Vite warns
-//    when the outDir sits outside its root and it isn't emptying it — that
+//    when the outDir sits outside its root and it isn't emptying it  that
 //    warning is the expected outcome here, not a problem.
 run(`pnpm --filter example-landing exec vite build --base=/ --outDir=${outDir}`)
 

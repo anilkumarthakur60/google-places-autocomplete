@@ -12,7 +12,7 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/coverage/**',
       '**/*.tsbuildinfo',
-      // svelte-package's intermediate build directory — generated .d.ts
+      // svelte-package's intermediate build directory  generated .d.ts
       // files here aren't covered by any tsconfig, so type-aware rules
       // crash on them rather than just finding nothing to complain about.
       '**/.svelte-kit/**',

@@ -39,7 +39,7 @@ Full documentation: [Vue guide](https://anilkumarthakur60.github.io/google-place
 
 ## Props
 
-All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, in kebab-case (`debounce-ms`, `region-code`, ...), plus `modelValue` and `placeholder`. `apiKey`/`debounceMs`/etc. are read once at construction — remount to change them.
+All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-places-autocomplete/api/core#placesautocompleteconfig) fields, in kebab-case (`debounce-ms`, `region-code`, ...), plus `modelValue` and `placeholder`. `apiKey`/`debounceMs`/etc. are read once at construction  remount to change them.
 
 ## Events
 
@@ -47,7 +47,7 @@ All [`PlacesAutocompleteConfig`](https://anilkumarthakur60.github.io/google-plac
 
 ## Headless usage
 
-`usePlacesAutocomplete` — the composable the component is built on — is also exported, for custom markup.
+`usePlacesAutocomplete`  the composable the component is built on  is also exported, for custom markup.
 
 ## License
 

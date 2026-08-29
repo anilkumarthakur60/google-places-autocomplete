@@ -1,7 +1,7 @@
 // Post-build smoke test against the ACTUAL dist/ artifact (not src/).
 //
 // Unlike the Vue/React wrappers, Svelte ships dist/PlacesAutocomplete.svelte
-// as source — that's the correct, standard shape for a Svelte component
+// as source  that's the correct, standard shape for a Svelte component
 // package; the *consumer's* bundler compiles it with whatever Svelte version
 // they have installed. Plain Node can't execute .svelte syntax at all, so
 // this script does what a consumer's bundler would do: compile the shipped
@@ -45,7 +45,7 @@ mount(PlacesAutocomplete, { target: root, props: { apiKey: 'test-key' } })
 const input = document.querySelector('input.gpa-input')
 const ok = input && input.getAttribute('role') === 'combobox'
 
-// Clean up the scratch file regardless of outcome — it's a check artifact, not a shipped file.
+// Clean up the scratch file regardless of outcome  it's a check artifact, not a shipped file.
 try {
   const { unlinkSync } = await import('node:fs')
   unlinkSync(fileURLToPath(compiledPath))

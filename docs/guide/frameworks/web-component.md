@@ -1,6 +1,6 @@
 # Web Component
 
-The `<gpa-autocomplete>` custom element works in any framework — or none — since it's built directly on `core` with no framework runtime involved. It **self-injects its stylesheet** on first use, so there's no separate CSS import to remember.
+The `<gpa-autocomplete>` custom element works in any framework  or none  since it's built directly on `core` with no framework runtime involved. It **self-injects its stylesheet** on first use, so there's no separate CSS import to remember.
 
 ## With a bundler
 
@@ -14,7 +14,7 @@ npm install @anil-labs/google-places-autocomplete-element
 
   defineGooglePlacesAutocompleteElement('gpa-autocomplete')
 
-  // Configure BEFORE inserting into the document — see the note below.
+  // Configure BEFORE inserting into the document  see the note below.
   const el = document.createElement('gpa-autocomplete')
   el.setAttribute('api-key', 'YOUR_API_KEY')
   el.setAttribute('placeholder', 'Search for an address…')
@@ -24,9 +24,9 @@ npm install @anil-labs/google-places-autocomplete-element
 </script>
 ```
 
-## Via a CDN — no build step
+## Via a CDN  no build step
 
-The package ships a standalone, self-contained bundle (the engine and styles are baked in) that registers `<gpa-autocomplete>` automatically. One `<script>` tag is all you need — no bundler, no npm, no manual `define()` call:
+The package ships a standalone, self-contained bundle (the engine and styles are baked in) that registers `<gpa-autocomplete>` automatically. One `<script>` tag is all you need  no bundler, no npm, no manual `define()` call:
 
 ```html
 <!-- unpkg (or swap for jsdelivr: https://cdn.jsdelivr.net/npm/@anil-labs/google-places-autocomplete-element) -->
@@ -45,17 +45,17 @@ The package ships a standalone, self-contained bundle (the engine and styles are
 </script>
 ```
 
-Writing `<gpa-autocomplete>` directly in HTML like this is safe here: `api-key` and the other config attributes are read when the element connects, and since it's declared in the markup the browser already has them by then. (The `createElement`-then-configure dance below only matters when you construct the element from a separate script — see the note.)
+Writing `<gpa-autocomplete>` directly in HTML like this is safe here: `api-key` and the other config attributes are read when the element connects, and since it's declared in the markup the browser already has them by then. (The `createElement`-then-configure dance below only matters when you construct the element from a separate script  see the note.)
 
-Pin a version for production (e.g. `.../@anil-labs/google-places-autocomplete-element@0.2.0`) so a future release can't change the behavior underneath you. Since the whole engine is bundled into this file, don't also load `@anil-labs/google-places-autocomplete-core` separately — it would just ship the engine twice.
+Pin a version for production (e.g. `.../@anil-labs/google-places-autocomplete-element@0.2.0`) so a future release can't change the behavior underneath you. Since the whole engine is bundled into this file, don't also load `@anil-labs/google-places-autocomplete-core` separately  it would just ship the engine twice.
 
 ::: warning Configure before connecting (createElement usage)
-`customElements.define()` synchronously upgrades any matching tag already parsed into the document — if you build the element from a script with `document.createElement` and set `api-key` *after* appending it, the element may connect and read its attributes first. Set the attributes before `append()` (as in the bundler example above), or just declare the tag with its attributes directly in HTML (as in the CDN example).
+`customElements.define()` synchronously upgrades any matching tag already parsed into the document  if you build the element from a script with `document.createElement` and set `api-key` *after* appending it, the element may connect and read its attributes first. Set the attributes before `append()` (as in the bundler example above), or just declare the tag with its attributes directly in HTML (as in the CDN example).
 :::
 
 ## Attributes
 
-Every attribute is **live**: change it after the element is connected and it applies to the next request (via the controller's `setConfig()` under the hood) — the way HTML authors expect attributes to behave.
+Every attribute is **live**: change it after the element is connected and it applies to the next request (via the controller's `setConfig()` under the hood)  the way HTML authors expect attributes to behave.
 
 | Attribute          | Maps to                          |
 | ------------------- | ---------------------------------- |

@@ -1,7 +1,7 @@
-// Standalone CDN entry (the IIFE build's entry point — see tsup.config.ts).
+// Standalone CDN entry (the IIFE build's entry point  see tsup.config.ts).
 //
 // Registers the default <gpa-autocomplete> tag on load, so a single script tag
-// is enough — no build step, no manual define() call:
+// is enough  no build step, no manual define() call:
 //
 //   <script src="https://unpkg.com/@anil-labs/google-places-autocomplete-element"></script>
 //   <gpa-autocomplete api-key="..."></gpa-autocomplete>

@@ -73,7 +73,7 @@ export const PlacesAutocomplete = defineComponent({
     )
 
     // Live config: prop changes are pushed into the machine via setConfig()
-    // instead of requiring a remount. (`fetcher` is included too — Vue prop
+    // instead of requiring a remount. (`fetcher` is included too  Vue prop
     // identity only changes when the parent actually passes a new one.)
     watch(
       () => [

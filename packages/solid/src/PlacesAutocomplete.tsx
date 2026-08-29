@@ -56,7 +56,7 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
   const uid = createUniqueId()
   /*
    * Solid's `ref={rootRef}` JSX prop below assigns this during render via a
-   * compiler transform the linter's data-flow analysis can't see — it is
+   * compiler transform the linter's data-flow analysis can't see  it is
    * not actually left unassigned.
    */
   // eslint-disable-next-line no-unassigned-vars -- see comment above
@@ -69,7 +69,7 @@ export const PlacesAutocomplete: Component<PlacesAutocompleteProps> = (props) =>
   })
 
   // Live config: reading {...config} inside the effect tracks every config
-  // prop, so any change flows into the machine via setConfig() — no remount
+  // prop, so any change flows into the machine via setConfig()  no remount
   // needed. The initial run applies the values the controller was
   // constructed from, a harmless no-op.
   createEffect(() => {

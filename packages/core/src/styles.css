@@ -50,7 +50,7 @@
   outline-offset: -1px;
 }
 
-/* The panel that appears below the input — holds either the suggestion
+/* The panel that appears below the input  holds either the suggestion
    list, a loading message, or an empty-results message, so its border/shadow
    live here rather than on .gpa-listbox specifically. */
 .gpa-panel {

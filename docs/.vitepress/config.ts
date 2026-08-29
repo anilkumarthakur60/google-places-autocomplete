@@ -9,7 +9,7 @@ export default defineConfig({
   base: process.env.VITEPRESS_BASE ?? '/',
   title: '@anil-labs/google-places-autocomplete',
   description:
-    'A typed address autocomplete on Google Places API (New) — debounced predictions, session-token billing and resolved place details, for React, Vue, Svelte, Solid and Web Components.',
+    'A typed address autocomplete on Google Places API (New)  debounced predictions, session-token billing and resolved place details, for React, Vue, Svelte, Solid and Web Components.',
   lang: 'en-US',
   cleanUrls: true,
   lastUpdated: true,

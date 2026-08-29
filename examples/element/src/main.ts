@@ -1,4 +1,4 @@
-// No CSS import needed — the element self-injects the stylesheet on connect.
+// No CSS import needed  the element self-injects the stylesheet on connect.
 import { defineGooglePlacesAutocompleteElement } from '@anil-labs/google-places-autocomplete-element'
 import { DEMO_CONFIG, getDemoApiKey } from '../../shared/src/config'
 import type {
@@ -15,7 +15,7 @@ const outputEl = document.getElementById('output')
 if (!container || !errorEl || !outputEl) throw new Error('Missing expected #id elements')
 
 // Configure BEFORE inserting into the document: once connected, apiKey/etc.
-// are read once (see GooglePlacesAutocompleteElement's class doc) — setting
+// are read once (see GooglePlacesAutocompleteElement's class doc)  setting
 // them first avoids the controller ever seeing empty attributes.
 const el = document.createElement('gpa-autocomplete')
 el.setAttribute('placeholder', 'Start typing an address…')

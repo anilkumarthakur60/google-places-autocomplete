@@ -30,7 +30,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
-  // Vitest has no built-in per-test DOM teardown like Jest's — without this,
+  // Vitest has no built-in per-test DOM teardown like Jest's  without this,
   // each render() accumulates in the shared jsdom document and later tests'
   // queries match multiple elements.
   cleanup()

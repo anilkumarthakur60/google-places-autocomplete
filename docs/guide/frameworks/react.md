@@ -30,7 +30,7 @@ All [`PlacesAutocompleteConfig`](/api/core#placesautocompleteconfig) fields are 
 | `placeholder`     | `string`                    |                                                                    |
 | `className`       | `string`                    | Merged onto the root `<div>`.                                     |
 
-`onSelect`/`onError` are always safe to pass a fresh inline function every render — they're read from a ref internally, so they never go stale. Other config (`apiKey`, `debounceMs`, etc.) is read once when the component mounts; remount via a `key` prop to apply a change.
+`onSelect`/`onError` are always safe to pass a fresh inline function every render  they're read from a ref internally, so they never go stale. Other config (`apiKey`, `debounceMs`, etc.) is read once when the component mounts; remount via a `key` prop to apply a change.
 
 ## Custom suggestion rendering
 

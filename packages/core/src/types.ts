@@ -1,5 +1,5 @@
 /**
- * A matched range inside a suggestion's text — the part that corresponds to
+ * A matched range inside a suggestion's text  the part that corresponds to
  * what the user typed. Offsets index into the string they annotate; use them
  * to bold the match the way Google's own widget does.
  */
@@ -20,13 +20,13 @@ export interface Suggestion {
   types: string[]
   /** Matched ranges within {@link text}. */
   textMatches: SuggestionMatch[]
-  /** Matched ranges within {@link mainText} — what dropdown highlighting wants. */
+  /** Matched ranges within {@link mainText}  what dropdown highlighting wants. */
   mainTextMatches: SuggestionMatch[]
   /** Straight-line distance from {@link PlacesAutocompleteConfig.origin}, when one was set. */
   distanceMeters?: number
   /**
    * The raw `placePrediction` object from Google, untouched. Anything this
-   * library doesn't map — new API fields, experimental data — is still here.
+   * library doesn't map  new API fields, experimental data  is still here.
    */
   raw: unknown
 }
@@ -79,7 +79,7 @@ export interface LatLng {
   longitude: number
 }
 
-/** Same shape as `fetch` itself — the default is `globalThis.fetch`. */
+/** Same shape as `fetch` itself  the default is `globalThis.fetch`. */
 export type Fetcher = (input: string | URL, init?: RequestInit) => Promise<Response>
 
 export const DEFAULT_PLACE_FIELDS = [
@@ -90,7 +90,7 @@ export const DEFAULT_PLACE_FIELDS = [
   'addressComponents',
 ] as const
 
-/** User-facing strings rendered by the wrappers — override for i18n/white-labeling. */
+/** User-facing strings rendered by the wrappers  override for i18n/white-labeling. */
 export interface PlacesAutocompleteLabels {
   /** Shown in the panel while a request is in flight. */
   searching: string
@@ -110,7 +110,7 @@ export interface PlacesAutocompleteConfig {
   /**
    * Required unless `fetcher` fully handles authentication itself (e.g. a
    * backend proxy that attaches its own server-side key). Never bundle a
-   * real key into published code — pass it in at runtime.
+   * real key into published code  pass it in at runtime.
    */
   apiKey?: string
   /** Override to proxy requests through your own backend instead of calling Google directly. */
@@ -119,7 +119,7 @@ export interface PlacesAutocompleteConfig {
   debounceMs?: number
   /** Minimum query length before a request fires. Default 1. */
   minLength?: number
-  /** Localizes suggestion text — and, when `resolveDetails` is on, the resolved details too. */
+  /** Localizes suggestion text  and, when `resolveDetails` is on, the resolved details too. */
   languageCode?: string
   regionCode?: string
   includedRegionCodes?: string[]
@@ -134,7 +134,7 @@ export interface PlacesAutocompleteConfig {
   locationRestriction?: LocationRestriction
   /**
    * When set, each {@link Suggestion} carries `distanceMeters` from this
-   * point — e.g. for "0.4 km away" rows sorted by proximity.
+   * point  e.g. for "0.4 km away" rows sorted by proximity.
    */
   origin?: LatLng
   /** Auto-fetch Place Details (New) after selection, reusing the same session token. Default true. */
@@ -174,8 +174,8 @@ export interface PlacesAutocompleteController {
   selectSuggestion(this: void, suggestion: Suggestion): void
   close(this: void): void
   /**
-   * Merge new config into the live controller — change the API key, region,
-   * debounce, anything — without recreating it. Aborts any in-flight request
+   * Merge new config into the live controller  change the API key, region,
+   * debounce, anything  without recreating it. Aborts any in-flight request
    * (its results would belong to the old config) but keeps the current query
    * and selection; the next keystroke searches with the new settings.
    */

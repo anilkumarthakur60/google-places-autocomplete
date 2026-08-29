@@ -9,7 +9,7 @@ export default defineConfig({
   base: process.env.BASE_URL ?? '/',
   // A shared root .env supplies VITE_GOOGLE_PLACES_API_KEY to every example.
   envDir: here('../..'),
-  // Per-playground cacheDir — without this all 5 vite dev servers share
+  // Per-playground cacheDir  without this all 5 vite dev servers share
   // node_modules/.vite/ and clobber each other's optimized deps.
   cacheDir: here('../../node_modules/.vite-vue'),
   plugins: [vue()],

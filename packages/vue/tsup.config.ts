@@ -13,7 +13,7 @@ export default defineConfig({
   external: ['@anil-labs/google-places-autocomplete-core', 'vue', 'vue/jsx-runtime'],
   esbuildOptions(options) {
     // Without this, esbuild's automatic JSX transform defaults to
-    // React.createElement — it compiles clean and every test that goes
+    // React.createElement  it compiles clean and every test that goes
     // through src/ via the dev-time compiler stays green, but the *shipped*
     // bundle throws `ReferenceError: React is not defined` the moment it
     // renders. scripts/check-dist.mjs mounts the real dist/ output precisely

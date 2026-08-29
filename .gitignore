@@ -15,7 +15,7 @@ docs/.vitepress/dist/
 # svelte-package intermediate build dir
 .svelte-kit/
 
-# Env / secrets — Google API keys live here, never committed.
+# Env / secrets  Google API keys live here, never committed.
 .env
 .env.*
 !.env.example

@@ -1,6 +1,6 @@
 # @anil-labs/google-places-autocomplete-core
 
-Framework-agnostic engine for Google Places Autocomplete (New): debounced predictions, automatic session-token billing, keyboard navigation and place-details resolution. Zero runtime dependencies — talks to `places.googleapis.com` with plain `fetch`, no Maps JavaScript SDK, no global namespace.
+Framework-agnostic engine for Google Places Autocomplete (New): debounced predictions, automatic session-token billing, keyboard navigation and place-details resolution. Zero runtime dependencies  talks to `places.googleapis.com` with plain `fetch`, no Maps JavaScript SDK, no global namespace.
 
 This is the shared engine behind [`@anil-labs/google-places-autocomplete-vue`](https://www.npmjs.com/package/@anil-labs/google-places-autocomplete-vue), `-react`, `-svelte`, `-solid` and `-element`. Install one of those directly unless you're building your own binding.
 
@@ -46,9 +46,9 @@ For a ready-made UI without wiring the engine yourself, prefer [`@anil-labs/goog
 
 ## Why this over the legacy Autocomplete widget?
 
-- **No Maps JS SDK** — plain `fetch`, works anywhere `fetch`/`AbortController`/`crypto.randomUUID()` exist.
-- **Correct session billing by default** — Autocomplete + Place Details share one session token automatically.
-- **Bring your own key handling** — pass `apiKey` directly, or override `fetcher` to proxy through your own backend.
+- **No Maps JS SDK**  plain `fetch`, works anywhere `fetch`/`AbortController`/`crypto.randomUUID()` exist.
+- **Correct session billing by default**  Autocomplete + Place Details share one session token automatically.
+- **Bring your own key handling**  pass `apiKey` directly, or override `fetcher` to proxy through your own backend.
 
 See [Session tokens & billing](https://anilkumarthakur60.github.io/google-places-autocomplete/guide/session-tokens) for the full detail.
 

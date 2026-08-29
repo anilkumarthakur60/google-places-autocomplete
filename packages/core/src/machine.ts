@@ -41,7 +41,7 @@ const INITIAL_STATE: PlacesAutocompleteState = {
 export function createPlacesAutocomplete(
   config: PlacesAutocompleteConfig,
 ): PlacesAutocompleteController {
-  // Mutable so setConfig() can merge changes into a LIVE controller — the
+  // Mutable so setConfig() can merge changes into a LIVE controller  the
   // wrappers no longer need to destroy/recreate to change the API key,
   // region, debounce, etc. Every request reads from here at call time.
   let cfg: PlacesAutocompleteConfig = { ...config }
@@ -102,7 +102,7 @@ export function createPlacesAutocomplete(
     const currentRequestId = ++requestId
     // isOpen flips true here (not just once suggestions exist), so a wrapper
     // can render a loading indicator immediately, then either the results or
-    // a "no results" message once the request settles — the panel appearing
+    // a "no results" message once the request settles  the panel appearing
     // and disappearing based on the query alone, independent of whether it
     // ends up empty.
     setState({ status: 'loading', isOpen: true })
@@ -123,7 +123,7 @@ export function createPlacesAutocomplete(
         ...(cfg.origin ? { origin: cfg.origin } : {}),
       })
       // A newer request may have started (and its abort may not have settled
-      // this promise) while this one was in flight — the id check is the
+      // this promise) while this one was in flight  the id check is the
       // real guard, `signal.aborted` alone would race it.
       if (destroyed || currentRequestId !== requestId) return
       setState({
@@ -154,7 +154,7 @@ export function createPlacesAutocomplete(
   let debouncedSearch = makeDebouncedSearch()
 
   async function resolveSelection(suggestion: Suggestion): Promise<void> {
-    // Selecting a suggestion is terminal from the panel's perspective — close
+    // Selecting a suggestion is terminal from the panel's perspective  close
     // it immediately rather than lingering open (mid old-suggestions) for
     // the duration of the details fetch below.
     setState({ isOpen: false })
@@ -258,7 +258,7 @@ export function createPlacesAutocomplete(
         patch.debounceMs !== undefined && patch.debounceMs !== (cfg.debounceMs ?? 200)
       cfg = { ...cfg, ...patch }
       // In-flight results would belong to the old config (old key, old
-      // region…) — drop them. requestId also invalidates any request whose
+      // region…)  drop them. requestId also invalidates any request whose
       // abort hasn't settled yet.
       abortInFlight()
       requestId++

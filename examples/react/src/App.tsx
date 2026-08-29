@@ -14,7 +14,7 @@ export function App() {
 
   return (
     <main className="demo">
-      <h1>@anil-labs/google-places-autocomplete — React</h1>
+      <h1>@anil-labs/google-places-autocomplete  React</h1>
       <p className="tag">
         Type an address below. Selecting a suggestion resolves the full place via the same session.
       </p>
